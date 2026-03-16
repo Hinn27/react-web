@@ -184,7 +184,7 @@ function HeroSection() {
                     >
                         <Box
                             component="img"
-                            src="https://images.unsplash.com/photo-1503764654157-72d979d9af2f?w=500"
+                            src="public/assets/images/food/cao-lau.jpg"
                             alt="Món ăn Việt Nam"
                             sx={{
                                 width: "100%",

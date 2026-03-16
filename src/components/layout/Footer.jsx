@@ -148,7 +148,7 @@ function Footer() {
                                     variant="body2"
                                     sx={{ color: "#B0B0B0" }}
                                 >
-                                    Hotline: 1900 xxxx (Miễn phí)
+                                    Hotline: 1900 1009 (Miễn phí)
                                 </Typography>
                             </Stack>
                             <Stack
@@ -182,7 +182,7 @@ function Footer() {
                                     variant="body2"
                                     sx={{ color: "#B0B0B0" }}
                                 >
-                                    Đại học Đông Á, Đà Nẵng, Việt Nam
+                                    Trường Đại học Đông Á, Đà Nẵng, Việt Nam
                                 </Typography>
                             </Stack>
                         </Stack>
@@ -211,7 +211,7 @@ function Footer() {
                     >
                         Made with{" "}
                         <FavoriteIcon sx={{ fontSize: 14, color: "#E8651A" }} />{" "}
-                        by Đại học Đông Á
+                        by Hin
                     </Typography>
                 </Stack>
             </Box>

@@ -126,8 +126,8 @@ function Navbar() {
                     }}
                 >
                     <Typography variant="body2" fontWeight={700}>
-                        Giao bua an dem 24/7 • Ho tro nguoi lao dong va cac quan
-                        an 0 dong
+                        Giao bữa ăn đêm 24/7 • Hỗ trợ người lao động và người
+                        nghèo
                     </Typography>
                 </Box>
                 <Box

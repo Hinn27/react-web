@@ -1,10 +1,15 @@
 /**
- * Trang checkout.
- * Kien thuc ap dung:
- * - useState cho form + stepper
- * - useCart/useAuth (useContext) de doc du lieu
- * - useNavigate sau khi dat hang thanh cong
- * - QR thanh toan dung anh tinh trong public/
+ * Checkout.jsx - Trang thanh toán
+ *
+ * Theo kiến thức React Hooks:
+ * - useState: Quản lý form state và step state
+ *
+ * Theo kiến thức useContext:
+ * - useCart: Lấy thông tin giỏ hàng từ CartContext
+ * - useAuth: Kiểm tra đăng nhập
+ *
+ * Theo kiến thức React Router Dom:
+ * - useNavigate: Điều hướng sau khi đặt hàng thành công
  */
 
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";

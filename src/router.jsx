@@ -13,7 +13,6 @@ import Checkout from "./pages/Checkout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Menu from "./pages/Menu";
-import NotFound from "./pages/NotFound";
 import ProductDetail from "./pages/ProductDetail";
 import Register from "./pages/Register";
 
@@ -52,11 +51,6 @@ export const router = createBrowserRouter([
             {
                 path: "checkout",
                 element: <Checkout />,
-            },
-            {
-                // 404 fallback.
-                path: "*",
-                element: <NotFound />,
             },
         ],
     },
