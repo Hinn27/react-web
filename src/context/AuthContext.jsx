@@ -1,13 +1,9 @@
 /**
- * AuthContext.jsx - Context quản lý Authentication
- *
- * Theo kiến thức React Hooks:
- * - useContext: Chia sẻ thông tin user/auth giữa các component
- *   mà không cần props drilling
- * - useReducer: Quản lý state phức tạp với reducer pattern
- *   (thay vì dùng nhiều useState)
- * - useMemo: Tối ưu hiệu năng bằng cách ghi nhớ context value
- * - useCallback: Ghi nhớ các callback functions
+ * Auth context.
+ * Kien thuc ap dung:
+ * - useReducer cho state auth
+ * - useContext de chia se state toan app
+ * - useCallback/useMemo de toi uu re-render
  */
 
 import {
@@ -18,17 +14,15 @@ import {
     useReducer,
 } from "react";
 
-// Tạo Context
 const AuthContext = createContext(null);
 
-// Định nghĩa các action types
 const AUTH_ACTIONS = {
     LOGIN: "LOGIN",
     LOGOUT: "LOGOUT",
     UPDATE_USER: "UPDATE_USER",
 };
 
-// Initial state - lấy từ localStorage nếu có
+// Lay state ban dau tu localStorage.
 const getInitialState = () => {
     const saved = localStorage.getItem("refood-user");
     return {
@@ -37,10 +31,7 @@ const getInitialState = () => {
     };
 };
 
-/**
- * Reducer function - xử lý các action để cập nhật state
- * Theo pattern useReducer: (state, action) => newState
- */
+/** Reducer xu ly cac action auth. */
 function authReducer(state, action) {
     switch (action.type) {
         case AUTH_ACTIONS.LOGIN:
@@ -65,27 +56,20 @@ function authReducer(state, action) {
     }
 }
 
-/**
- * AuthProvider Component
- * Sử dụng useReducer thay vì useState cho state phức tạp
- */
+/** Provider chia se auth state/actions. */
 export function AuthProvider({ children }) {
-    // useReducer cho quản lý state phức tạp
     const [state, dispatch] = useReducer(authReducer, null, getInitialState);
 
-    // useCallback để ghi nhớ login function
     const login = useCallback((userData) => {
         localStorage.setItem("refood-user", JSON.stringify(userData));
         dispatch({ type: AUTH_ACTIONS.LOGIN, payload: userData });
     }, []);
 
-    // useCallback để ghi nhớ logout function
     const logout = useCallback(() => {
         localStorage.removeItem("refood-user");
         dispatch({ type: AUTH_ACTIONS.LOGOUT });
     }, []);
 
-    // useCallback để ghi nhớ updateUser function
     const updateUser = useCallback(
         (updates) => {
             const newUser = { ...state.user, ...updates };
@@ -95,7 +79,6 @@ export function AuthProvider({ children }) {
         [state.user]
     );
 
-    // useMemo để tối ưu context value
     const value = useMemo(
         () => ({
             user: state.user,
@@ -112,10 +95,7 @@ export function AuthProvider({ children }) {
     );
 }
 
-/**
- * Custom Hook để sử dụng AuthContext
- * Throw error nếu sử dụng ngoài AuthProvider
- */
+/** Hook truy cap auth context an toan. */
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {

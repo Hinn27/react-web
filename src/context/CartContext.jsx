@@ -1,14 +1,9 @@
 /**
- * CartContext.jsx - Context quản lý Giỏ hàng
- *
- * Theo kiến thức React Hooks:
- * - useReducer: Quản lý state phức tạp của giỏ hàng (items, add, remove, update)
- *   Sử dụng action types và reducer function để xử lý logic
- * - useContext: Chia sẻ cart state giữa các component
- * - useCallback: Ghi nhớ các callback functions (addItem, removeItem, etc.)
- * - useMemo: Tính toán các giá trị derived (totalItems, totalPrice)
- *   chỉ khi dependencies thay đổi
- * - useState: Quản lý UI state đơn giản (snackbar)
+ * Cart context.
+ * Kien thuc ap dung:
+ * - useReducer cho logic gio hang
+ * - useContext de dung cart o moi page
+ * - useMemo/useCallback de toi uu
  */
 
 import {
@@ -20,15 +15,12 @@ import {
     useState,
 } from "react";
 
-// Tạo Context
 const CartContext = createContext(null);
 
-// Initial state
 const initialState = {
     items: [],
 };
 
-// Action types
 const CART_ACTIONS = {
     ADD_ITEM: "ADD_ITEM",
     REMOVE_ITEM: "REMOVE_ITEM",
@@ -36,50 +28,67 @@ const CART_ACTIONS = {
     CLEAR_CART: "CLEAR_CART",
 };
 
-/**
- * Cart Reducer - Xử lý các action để cập nhật state giỏ hàng
- *
- * Theo pattern useReducer:
- * - Nhận state hiện tại và action
- * - Trả về state mới (immutable)
- * - Switch case theo action.type
- */
+/** Reducer xu ly cac action gio hang. */
 function cartReducer(state, action) {
     switch (action.type) {
         case CART_ACTIONS.ADD_ITEM: {
-            // Kiểm tra item đã tồn tại trong giỏ chưa
+            const quantityToAdd = action.payload.quantity ?? 1;
             const existingIndex = state.items.findIndex(
                 (item) => item._id === action.payload._id
             );
 
             if (existingIndex >= 0) {
-                // Nếu đã có, tăng quantity
                 const newItems = [...state.items];
                 newItems[existingIndex] = {
                     ...newItems[existingIndex],
-                    quantity: newItems[existingIndex].quantity + 1,
+                    quantity: newItems[existingIndex].quantity + quantityToAdd,
                 };
                 return { ...state, items: newItems };
             }
 
-            // Nếu chưa có, thêm mới với quantity = 1
             return {
                 ...state,
-                items: [...state.items, { ...action.payload, quantity: 1 }],
+                items: [
+                    ...state.items,
+                    { ...action.payload, quantity: quantityToAdd },
+                ],
             };
         }
 
-        case CART_ACTIONS.REMOVE_ITEM:
-            // Lọc bỏ item theo id
+        case CART_ACTIONS.REMOVE_ITEM: {
+            const itemToRemove = state.items.find(
+                (item) => item._id === action.payload._id
+            );
+
+            if (!itemToRemove) {
+                return state;
+            }
+
+            const quantityToRemove = action.payload.quantity ?? 1;
+
+            if (itemToRemove.quantity <= quantityToRemove) {
+                return {
+                    ...state,
+                    items: state.items.filter(
+                        (item) => item._id !== action.payload._id
+                    ),
+                };
+            }
+
             return {
                 ...state,
-                items: state.items.filter(
-                    (item) => item._id !== action.payload
+                items: state.items.map((item) =>
+                    item._id === action.payload._id
+                        ? {
+                              ...item,
+                              quantity: item.quantity - quantityToRemove,
+                          }
+                        : item
                 ),
             };
+        }
 
         case CART_ACTIONS.UPDATE_QUANTITY: {
-            // Nếu quantity <= 0, xóa item
             if (action.payload.quantity <= 0) {
                 return {
                     ...state,
@@ -88,7 +97,6 @@ function cartReducer(state, action) {
                     ),
                 };
             }
-            // Cập nhật quantity
             return {
                 ...state,
                 items: state.items.map((item) =>
@@ -107,41 +115,39 @@ function cartReducer(state, action) {
     }
 }
 
-/**
- * CartProvider Component
- * Kết hợp useReducer và useState để quản lý state
- */
+/** Provider chia se cart state/actions. */
 export function CartProvider({ children }) {
-    // useReducer cho cart state phức tạp
     const [state, dispatch] = useReducer(cartReducer, initialState);
 
-    // useState cho UI state đơn giản (snackbar notification)
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: "",
     });
 
-    // useCallback để ghi nhớ showSnackbar function
     const showSnackbar = useCallback((message) => {
         setSnackbar({ open: true, message });
     }, []);
 
-    // useCallback để ghi nhớ closeSnackbar function
     const closeSnackbar = useCallback(() => {
         setSnackbar((prev) => ({ ...prev, open: false }));
     }, []);
 
-    // Các action creators với useCallback
     const addItem = useCallback(
-        (item) => {
-            dispatch({ type: CART_ACTIONS.ADD_ITEM, payload: item });
-            showSnackbar(`Đã thêm "${item.name}" vào giỏ hàng!`);
+        (item, quantity = 1) => {
+            dispatch({
+                type: CART_ACTIONS.ADD_ITEM,
+                payload: { ...item, quantity },
+            });
+            showSnackbar(`Đã thêm ${quantity} "${item.name}" vào giỏ hàng!`);
         },
         [showSnackbar]
     );
 
-    const removeItem = useCallback((id) => {
-        dispatch({ type: CART_ACTIONS.REMOVE_ITEM, payload: id });
+    const removeItem = useCallback((id, quantity = 1) => {
+        dispatch({
+            type: CART_ACTIONS.REMOVE_ITEM,
+            payload: { _id: id, quantity },
+        });
     }, []);
 
     const updateQuantity = useCallback((_id, quantity) => {
@@ -155,10 +161,7 @@ export function CartProvider({ children }) {
         dispatch({ type: CART_ACTIONS.CLEAR_CART });
     }, []);
 
-    /**
-     * useMemo cho các giá trị tính toán
-     * Chỉ tính lại khi state.items thay đổi
-     */
+    // Gia tri tinh toan tu items.
     const totalItems = useMemo(
         () => state.items.reduce((sum, item) => sum + item.quantity, 0),
         [state.items]
@@ -173,9 +176,9 @@ export function CartProvider({ children }) {
         [state.items]
     );
 
-    // useMemo cho context value
     const value = useMemo(
         () => ({
+            cartItems: state.items,
             items: state.items,
             totalItems,
             totalPrice,
@@ -204,9 +207,7 @@ export function CartProvider({ children }) {
     );
 }
 
-/**
- * Custom Hook để sử dụng CartContext
- */
+/** Hook truy cap cart context an toan. */
 export const useCart = () => {
     const context = useContext(CartContext);
     if (!context) {
