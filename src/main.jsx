@@ -1,10 +1,9 @@
 /**
- * main.jsx - Entry Point của ứng dụng React
- *
- * Theo kiến thức ReactJS:
- * - Sử dụng StrictMode để phát hiện các vấn đề tiềm ẩn
- * - createRoot là cách render mới của React 18+
- * - Wrapping với các Context Providers để chia sẻ state toàn cục
+ * Entry point cua app.
+ * Kien thuc ap dung:
+ * - StrictMode + createRoot
+ * - Context Providers (Theme/Auth/Cart)
+ * - RouterProvider voi createBrowserRouter
  */
 
 import "@fontsource/roboto/300.css";
@@ -20,10 +19,7 @@ import { ThemeProvider } from "./context/ThemeContext.jsx";
 import "./index.css";
 import { router } from "./router.jsx";
 
-/**
- * Sử dụng createRoot (React 18+) thay vì ReactDOM.render
- * RouterProvider được sử dụng với createBrowserRouter (khuyến nghị)
- */
+/** Wrap app voi providers va router. */
 createRoot(document.getElementById("root")).render(
     <StrictMode>
         <ThemeProvider>

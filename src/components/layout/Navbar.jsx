@@ -1,11 +1,9 @@
 /**
- * Navbar.jsx - Navigation Bar Component
- *
- * Theo kiến thức React Router Dom:
- * - Sử dụng NavLink thay vì Link để có khả năng xác định trạng thái active
- * - NavLink giúp thêm style cho menu item đang active
- * - Sử dụng useNavigate để điều hướng programmatically
- * - Sử dụng useLocation để lấy thông tin URL hiện tại
+ * Navbar chung cua app.
+ * Kien thuc ap dung:
+ * - NavLink + useLocation cho active state
+ * - useNavigate cho dieu huong sau logout
+ * - useState cho mobile drawer/dialog
  */
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -117,6 +115,21 @@ function Navbar() {
                             : "rgba(30,30,30,0.9)",
                 }}
             >
+                <Box
+                    sx={{
+                        px: RESPONSIVE_PX,
+                        py: 0.75,
+                        textAlign: "center",
+                        background:
+                            "linear-gradient(135deg, #E8651A 0%, #2E7D32 100%)",
+                        color: "#fff",
+                    }}
+                >
+                    <Typography variant="body2" fontWeight={700}>
+                        Giao bua an dem 24/7 • Ho tro nguoi lao dong va cac quan
+                        an 0 dong
+                    </Typography>
+                </Box>
                 <Box
                     sx={{
                         maxWidth: LAYOUT_MAX_WIDTH.default,
