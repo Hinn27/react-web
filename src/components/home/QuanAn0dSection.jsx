@@ -1,5 +1,9 @@
 /**
- * QuanAn0dSection.jsx - Section Quán Ăn 0 đồng
+ * Section Quan An 0d.
+ * Kien thuc ap dung:
+ * - useRef + useInView cho animation trigger
+ * - useCallback cho add-to-cart handler
+ * - Link qua React Router
  */
 
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -153,7 +157,7 @@ function QuanAn0dSection() {
                                         >
                                             <CardMediaSkeleton
                                                 component="img"
-                                                image={`https://picsum.photos/seed/${meal._id}/400/300`}
+                                                image={meal.image}
                                                 alt={meal.name}
                                                 sx={{
                                                     aspectRatio: "16/10",

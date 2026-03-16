@@ -1,15 +1,10 @@
 /**
- * Checkout.jsx - Trang thanh toán
- *
- * Theo kiến thức React Hooks:
- * - useState: Quản lý form state và step state
- *
- * Theo kiến thức useContext:
- * - useCart: Lấy thông tin giỏ hàng từ CartContext
- * - useAuth: Kiểm tra đăng nhập
- *
- * Theo kiến thức React Router Dom:
- * - useNavigate: Điều hướng sau khi đặt hàng thành công
+ * Trang checkout.
+ * Kien thuc ap dung:
+ * - useState cho form + stepper
+ * - useCart/useAuth (useContext) de doc du lieu
+ * - useNavigate sau khi dat hang thanh cong
+ * - QR thanh toan dung anh tinh trong public/
  */
 
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -46,6 +41,7 @@ const steps = ["Thông tin giao hàng", "Phương thức thanh toán", "Xác nh�
 
 function Checkout() {
     const navigate = useNavigate();
+    const qrImagePath = "/assets/images/payment/qr-thanh-toan.png";
 
     /**
      * useAuth và useCart - Custom Hooks sử dụng useContext
@@ -321,45 +317,8 @@ function Checkout() {
                                                         color="text.secondary"
                                                     >
                                                         Chuyển khoản trước qua
-                                                        ngân hàng hoặc ví điện
-                                                        tử
-                                                    </Typography>
-                                                </Box>
-                                            }
-                                        />
-                                    </CardContent>
-                                </Card>
-                                <Card
-                                    variant={
-                                        formData.paymentMethod === "momo"
-                                            ? "outlined"
-                                            : "elevation"
-                                    }
-                                    sx={{
-                                        borderColor:
-                                            formData.paymentMethod === "momo"
-                                                ? "primary.main"
-                                                : "divider",
-                                        borderWidth: 2,
-                                    }}
-                                >
-                                    <CardContent>
-                                        <FormControlLabel
-                                            value="momo"
-                                            control={<Radio />}
-                                            label={
-                                                <Box>
-                                                    <Typography
-                                                        fontWeight={600}
-                                                    >
-                                                        Ví MoMo
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        color="text.secondary"
-                                                    >
-                                                        Thanh toán qua ví điện
-                                                        tử MoMo
+                                                        tài khoản ngân hàng của
+                                                        cửa hàng
                                                     </Typography>
                                                 </Box>
                                             }
@@ -368,6 +327,44 @@ function Checkout() {
                                 </Card>
                             </RadioGroup>
                         </FormControl>
+                        {formData.paymentMethod !== "cod" && (
+                            <Card
+                                variant="outlined"
+                                sx={{
+                                    borderStyle: "dashed",
+                                    bgcolor: "background.default",
+                                }}
+                            >
+                                <CardContent>
+                                    <Stack
+                                        spacing={2}
+                                        alignItems="center"
+                                        textAlign="center"
+                                    >
+                                        <Typography
+                                            variant="subtitle1"
+                                            fontWeight={700}
+                                        >
+                                            Quét mã QR để thanh toán
+                                        </Typography>
+                                        <Box
+                                            component="img"
+                                            src={qrImagePath}
+                                            alt="QR thanh toan"
+                                            sx={{
+                                                width: 220,
+                                                maxWidth: "100%",
+                                                borderRadius: 3,
+                                                border: "1px solid",
+                                                borderColor: "divider",
+                                                bgcolor: "#fff",
+                                                p: 1.5,
+                                            }}
+                                        />
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        )}
                     </Stack>
                 );
 
@@ -435,9 +432,7 @@ function Checkout() {
                                 <Typography variant="body2">
                                     {formData.paymentMethod === "cod"
                                         ? "Thanh toán khi nhận hàng (COD)"
-                                        : formData.paymentMethod === "banking"
-                                          ? "Chuyển khoản ngân hàng"
-                                          : "Ví MoMo"}
+                                        : "Chuyển khoản ngân hàng"}
                                 </Typography>
                             </CardContent>
                         </Card>

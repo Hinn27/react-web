@@ -1,11 +1,9 @@
 /**
- * ProductDetail.jsx - Trang chi tiết sản phẩm
- * - useParams: Lấy động tham số từ URL (VD: /product/:id)
- * - useNavigate: Điều hướng khi cần (VD: back, thêm vào giỏ xong về menu)
-
- * - useState: Quản lý local state (quantity, activeTab)
- * - useMemo: Tìm sản phẩm từ danh sách
- * - useCallback: Ghi nhớ handlers
+ * Trang chi tiet san pham.
+ * Kien thuc ap dung:
+ * - useParams de lay id tu URL
+ * - useNavigate de quay lai/chuyen trang
+ * - useState, useMemo, useCallback cho UI + logic
  */
 
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -177,7 +175,7 @@ function ProductDetail() {
                                 />
                                 <CardMediaSkeleton
                                     component="img"
-                                    image={`https://picsum.photos/seed/${product._id}/800/600`}
+                                    image={product.image}
                                     alt={product.name}
                                     sx={{
                                         width: "100%",
@@ -270,7 +268,7 @@ function ProductDetail() {
                             color="text.secondary"
                             sx={{ mb: 3, lineHeight: 1.8 }}
                         >
-                            {product.desc}
+                            {product.fullDesc || product.desc}
                         </Typography>
 
                         <Divider sx={{ my: 3 }} />
@@ -367,7 +365,7 @@ function ProductDetail() {
                                     color="text.secondary"
                                     sx={{ lineHeight: 1.8 }}
                                 >
-                                    {product.desc}
+                                    {product.fullDesc || product.desc}
                                     <br />
                                     <br />
                                     Món ăn được chế biến từ nguyên liệu tươi

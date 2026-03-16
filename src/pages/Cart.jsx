@@ -1,13 +1,9 @@
 /**
- * Cart.jsx - Trang giỏ hàng
- *
- * Theo kiến thức useContext:
- * - Sử dụng useCart (custom hook bọc useContext) để truy cập CartContext
- * - Tránh prop drilling - không cần truyền cart data qua nhiều tầng component
- *
- * Theo kiến thức React Router Dom:
- * - useNavigate: Điều hướng đến trang thanh toán
- * - Link: Tạo liên kết đến trang menu (tiếp tục mua sắm)
+ * Trang gio hang.
+ * Kien thuc ap dung:
+ * - useCart (useContext) de lay state/actions
+ * - updateQuantity de tang/giam dung tong tien
+ * - useNavigate + Link de dieu huong
  */
 
 import AddIcon from "@mui/icons-material/Add";
@@ -57,6 +53,7 @@ function Cart() {
         totalPrice,
         addItem,
         removeItem,
+        updateQuantity,
         clearCart,
     } = useCart();
 
@@ -170,7 +167,7 @@ function Cart() {
                                                 >
                                                     <CardMediaSkeleton
                                                         component="img"
-                                                        image={`https://picsum.photos/seed/${item._id}/100/100`}
+                                                        image={item.image}
                                                         alt={item.name}
                                                         sx={{
                                                             width: 80,
@@ -203,7 +200,11 @@ function Cart() {
                                                     <IconButton
                                                         size="small"
                                                         onClick={() =>
-                                                            removeItem(item._id)
+                                                            updateQuantity(
+                                                                item._id,
+                                                                item.quantity -
+                                                                    1
+                                                            )
                                                         }
                                                     >
                                                         <RemoveIcon fontSize="small" />
@@ -214,7 +215,11 @@ function Cart() {
                                                     <IconButton
                                                         size="small"
                                                         onClick={() =>
-                                                            addItem(item, 1)
+                                                            updateQuantity(
+                                                                item._id,
+                                                                item.quantity +
+                                                                    1
+                                                            )
                                                         }
                                                     >
                                                         <AddIcon fontSize="small" />
@@ -265,7 +270,7 @@ function Cart() {
                                         <Stack direction="row" spacing={2}>
                                             <CardMediaSkeleton
                                                 component="img"
-                                                image={`https://picsum.photos/seed/${item._id}/100/100`}
+                                                image={item.image}
                                                 alt={item.name}
                                                 sx={{
                                                     width: 80,
@@ -300,8 +305,10 @@ function Cart() {
                                                         <IconButton
                                                             size="small"
                                                             onClick={() =>
-                                                                removeItem(
-                                                                    item._id
+                                                                updateQuantity(
+                                                                    item._id,
+                                                                    item.quantity -
+                                                                        1
                                                                 )
                                                             }
                                                         >
@@ -315,7 +322,11 @@ function Cart() {
                                                         <IconButton
                                                             size="small"
                                                             onClick={() =>
-                                                                addItem(item, 1)
+                                                                updateQuantity(
+                                                                    item._id,
+                                                                    item.quantity +
+                                                                        1
+                                                                )
                                                             }
                                                         >
                                                             <AddIcon fontSize="small" />

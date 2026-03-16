@@ -1,15 +1,10 @@
 /**
- * Menu.jsx - Trang thực đơn
- *
- * Theo kiến thức React Hooks:
- * - useState: Quản lý search, category, page state
- * - useMemo: Tối ưu việc filter và pagination
- * - useCallback: Ghi nhớ handler functions
- *
- * Theo kiến thức React Router Dom:
- * - useSearchParams: Có thể dùng để lấy/set query parameters trên URL
- *   (VD: /menu?category=Com&page=2)
- * - Link: Tạo liên kết đến trang chi tiết sản phẩm
+ * Trang menu.
+ * Kien thuc ap dung:
+ * - useState cho search/category/page
+ * - useMemo cho filter + pagination
+ * - useCallback cho event handler
+ * - useSearchParams + Link cua React Router
  */
 
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -264,7 +259,7 @@ function Menu() {
                                     >
                                         <CardMediaSkeleton
                                             component="img"
-                                            image={`https://picsum.photos/seed/${meal._id}/400/300`}
+                                            image={meal.image}
                                             alt={meal.name}
                                             sx={{
                                                 aspectRatio: "16/10",

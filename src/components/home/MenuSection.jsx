@@ -1,11 +1,10 @@
 /**
- * MenuSection.jsx - Section hiển thị thực đơn trên trang chủ
- *
- * Theo kiến thức React Hooks:
- * - useState: Quản lý category filter
- * - useMemo: Tối ưu việc filter meals
- * - useRef: Tham chiếu đến grid element
- * - useCallback: Ghi nhớ handleAddToCart function
+ * Section menu o trang chu.
+ * Kien thuc ap dung:
+ * - useState cho category filter
+ * - useMemo cho filter danh sach
+ * - useRef + useInView cho animation
+ * - useCallback cho add-to-cart
  */
 
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -237,7 +236,7 @@ function MenuSection() {
                                     >
                                         <CardMediaSkeleton
                                             component="img"
-                                            image={`https://picsum.photos/seed/${meal._id}/400/300`}
+                                            image={meal.image}
                                             alt={meal.name}
                                             sx={{
                                                 aspectRatio: "16/10",
