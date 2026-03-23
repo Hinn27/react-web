@@ -1,9 +1,8 @@
 /**
- * Trang gio hang.
- * Kien thuc ap dung:
- * - useCart (useContext) de lay state/actions
- * - updateQuantity de tang/giam dung tong tien
- * - useNavigate + Link de dieu huong
+ * useContext: Quản lý và chia sẻ state/actions giỏ hàng toàn app, tránh props drilling.
+ * useState: Quản lý trạng thái động (số lượng, tổng tiền, v.v.).
+ * useNavigate: Điều hướng trang khi thao tác (mua tiếp, thanh toán).
+ * React Router Link: Điều hướng không reload trang.
  */
 
 import AddIcon from "@mui/icons-material/Add";
@@ -40,13 +39,7 @@ import { useCart } from "../context/CartContext";
 function Cart() {
     const navigate = useNavigate();
 
-    /**
-     * useCart - Custom Hook sử dụng useContext
-     *
-     * Theo kiến thức: Context giúp tránh prop drilling
-     * Thay vì truyền cartItems, addItem, removeItem... qua nhiều tầng,
-     * bất kỳ component nào cũng có thể truy cập thông qua useContext
-     */
+    // Lấy state và actions của giỏ hàng từ context.
     const {
         cartItems,
         totalItems,
@@ -57,7 +50,7 @@ function Cart() {
         clearCart,
     } = useCart();
 
-    // Empty cart UI
+    // Giao diện khi giỏ hàng trống.
     if (cartItems.length === 0) {
         return (
             <SectionLayout

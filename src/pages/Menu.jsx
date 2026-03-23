@@ -1,10 +1,10 @@
 /**
- * Trang menu.
- * Kien thuc ap dung:
- * - useState cho search/category/page
- * - useMemo cho filter + pagination
- * - useCallback cho event handler
- * - useSearchParams + Link cua React Router
+ * 1. Functional Component là tiêu chuẩn cho dự án mới (React >=16.8).
+ * 2. useState: Quản lý trạng thái động, mỗi lần setState sẽ REPLACE, không merge như class.
+ * 3. useMemo/useCallback: Tối ưu hiệu suất, chỉ dùng khi có tính toán nặng hoặc function truyền xuống props.
+ * 4. useContext: Tránh props drilling, chia sẻ state/actions toàn app (giỏ hàng).
+ * 5. useSearchParams: Kết nối UI với query string, giúp chia sẻ trạng thái filter qua URL.
+ * 6. UI thực chiến: Lọc, tìm kiếm, phân trang, thêm vào giỏ hàng, feedback người dùng.
  */
 
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -14,6 +14,7 @@ import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import SearchIcon from "@mui/icons-material/Search";
 import StarIcon from "@mui/icons-material/Star";
 import {
+    Alert,
     Box,
     Button,
     Card,
@@ -24,6 +25,7 @@ import {
     IconButton,
     InputAdornment,
     Pagination,
+    Paper,
     Stack,
     TextField,
     ToggleButton,
@@ -39,27 +41,35 @@ import SectionLayout from "../components/layout/SectionLayout";
 import { useCart } from "../context/CartContext";
 import { allMeals, categories } from "../data/meals";
 
+/**
+ * Component trang thực đơn.
+ * Nhiệm vụ chính:
+ * - Thêm món vào giỏ hàng
+ * - Lọc món theo từ khóa + danh mục
+ * - Số món trong 1 trang
+ */
 function Menu() {
+    // 4. useContext: Lấy action thêm vào giỏ hàng từ CartContext (tránh props drilling)
     const { addItem } = useCart();
 
-    // useSearchParams hook - có thể dùng để sync state với URL query
-    // Ví dụ: const [searchParams, setSearchParams] = useSearchParams();
-    // Lấy category từ URL: searchParams.get('category')
+    // 5. useSearchParams: Chuẩn bị đồng bộ filter với query string trên URL
     const [searchParams] = useSearchParams();
 
-    // useState cho filter state
+    // 2. useState: Quản lý trạng thái động cho tìm kiếm, danh mục, phân trang
+    // Khi setState, React sẽ REPLACE giá trị, không merge như class component
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("Tất cả");
     const [page, setPage] = useState(1);
 
+    // Số lượng món trên 1 trang
     const itemsPerPage = 8;
 
-    /**
-     * useMemo để filter meals
-     * Chỉ tính toán lại khi search hoặc category thay đổi
-     * Tránh tính toán lại không cần thiết khi re-render
-     */
+    // 3. useMemo: Tối ưu hiệu suất, chỉ tính toán lại khi search/category thay đổi
+    // Lọc dữ liệu hiển thị theo từ khóa và danh mục đang chọn
+    // 3. useMemo: Tối ưu hiệu suất, chỉ tính toán lại khi search/category thay đổi
+    // Hooks này giúp tránh render lại không cần thiết (micro optimization, chỉ dùng khi cần)
     const filteredMeals = useMemo(() => {
+        // Lọc theo tên và danh mục
         return allMeals.filter((meal) => {
             const matchSearch = meal.name
                 .toLowerCase()
@@ -70,24 +80,25 @@ function Menu() {
         });
     }, [search, category]);
 
-    // useMemo cho pagination
+    // 3. useMemo: Tính số trang và cắt dữ liệu theo trang hiện tại (phân trang động)
     const totalPages = useMemo(
         () => Math.ceil(filteredMeals.length / itemsPerPage),
         [filteredMeals.length]
     );
-
     const paginatedMeals = useMemo(
         () =>
             filteredMeals.slice((page - 1) * itemsPerPage, page * itemsPerPage),
         [filteredMeals, page]
     );
 
-    // Reset page khi filter thay đổi
+    // 3. useCallback: Ghi nhớ function, tránh tạo mới mỗi lần render (chỉ dùng khi truyền xuống props hoặc callback nặng)
+    // Khi nhập từ khóa mới: cập nhật search và quay về trang 1
     const handleSearchChange = useCallback((e) => {
         setSearch(e.target.value);
         setPage(1);
     }, []);
 
+    // Khi đổi danh mục: cập nhật category và quay về trang 1
     const handleCategoryChange = useCallback((e, val) => {
         if (val) {
             setCategory(val);
@@ -95,13 +106,13 @@ function Menu() {
         }
     }, []);
 
-    // useCallback cho pagination handler
+    // Đổi trang và cuộn lên đầu để người dùng nhìn thấy danh sách ngay
     const handlePageChange = useCallback((event, value) => {
         setPage(value);
         window.scrollTo({ top: 0, behavior: "smooth" });
     }, []);
 
-    // useCallback cho add to cart
+    // Chuẩn hóa dữ liệu món và gửi action thêm vào giỏ hàng (thực chiến: quản lý state qua context)
     const handleAddToCart = useCallback(
         (meal) => {
             addItem({
@@ -140,62 +151,91 @@ function Menu() {
                 </Stack>
             </AnimatedSection>
 
+            {/* Alert thông báo nhanh ở đầu trang */}
+            <AnimatedSection variant="fadeUp" delay={0.1}>
+                <Alert
+                    severity="info"
+                    sx={{
+                        mb: 3,
+                        borderRadius: 3,
+                        bgcolor: "rgba(232,101,26,0.08)",
+                        border: "1px solid",
+                        borderColor: "rgba(232,101,26,0.25)",
+                    }}
+                >
+                    Bạn có thể tìm món theo tên, lọc theo danh mục, rồi thêm
+                    nhanh vào giỏ hàng.
+                </Alert>
+            </AnimatedSection>
+
             {/* Search & Filter */}
             <AnimatedSection variant="fadeUp" delay={0.15}>
-                <Stack
-                    direction={{ xs: "column", md: "row" }}
-                    spacing={2}
-                    alignItems={{ md: "center" }}
-                    sx={{ mb: 4, mt: 3 }}
+                <Paper
+                    elevation={0}
+                    sx={{
+                        mb: 4,
+                        mt: 3,
+                        p: { xs: 2, md: 3 },
+                        borderRadius: 3,
+                        border: "1px solid",
+                        borderColor: "divider",
+                        bgcolor: "background.paper",
+                    }}
                 >
-                    <TextField
-                        placeholder="Tìm món ăn..."
-                        value={search}
-                        onChange={handleSearchChange}
-                        sx={{ minWidth: { md: 320 } }}
-                        slotProps={{
-                            input: {
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon color="action" />
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
-                    />
-                    <ToggleButtonGroup
-                        value={category}
-                        exclusive
-                        onChange={handleCategoryChange}
-                        size="small"
-                        sx={{
-                            flexWrap: "wrap",
-                            "& .MuiToggleButton-root": {
-                                borderRadius: "20px !important",
-                                border: "1px solid",
-                                borderColor: "divider",
-                                mx: 0.5,
-                                my: 0.5,
-                                px: 2,
-                                textTransform: "none",
-                                fontWeight: 500,
-                                "&.Mui-selected": {
-                                    bgcolor: "primary.main",
-                                    color: "#fff",
-                                    "&:hover": {
-                                        bgcolor: "primary.dark",
+                    <Stack
+                        direction={{ xs: "column", md: "row" }}
+                        spacing={2}
+                        alignItems={{ md: "center" }}
+                    >
+                        <TextField
+                            placeholder="Tìm món ăn..."
+                            value={search}
+                            onChange={handleSearchChange}
+                            sx={{ minWidth: { md: 320 } }}
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SearchIcon color="action" />
+                                        </InputAdornment>
+                                    ),
+                                },
+                            }}
+                        />
+                        <ToggleButtonGroup
+                            value={category}
+                            exclusive
+                            onChange={handleCategoryChange}
+                            size="small"
+                            sx={{
+                                flexWrap: "wrap",
+                                "& .MuiToggleButton-root": {
+                                    borderRadius: "20px !important",
+                                    border: "1px solid",
+                                    borderColor: "divider",
+                                    mx: 0.5,
+                                    my: 0.5,
+                                    px: 2,
+                                    textTransform: "none",
+                                    fontWeight: 500,
+                                    "&.Mui-selected": {
+                                        bgcolor: "primary.main",
+                                        color: "#fff",
+                                        "&:hover": {
+                                            bgcolor: "primary.dark",
+                                        },
                                     },
                                 },
-                            },
-                        }}
-                    >
-                        {categories.map((cat) => (
-                            <ToggleButton key={cat} value={cat}>
-                                {cat}
-                            </ToggleButton>
-                        ))}
-                    </ToggleButtonGroup>
-                </Stack>
+                            }}
+                        >
+                            {categories.map((cat) => (
+                                <ToggleButton key={cat} value={cat}>
+                                    {cat}
+                                </ToggleButton>
+                            ))}
+                        </ToggleButtonGroup>
+                    </Stack>
+                </Paper>
             </AnimatedSection>
 
             {/* Results count */}
@@ -213,6 +253,7 @@ function Menu() {
                         <Button
                             sx={{ mt: 2 }}
                             onClick={() => {
+                                // Xóa toàn bộ bộ lọc về mặc định.
                                 setSearch("");
                                 setCategory("Tất cả");
                             }}
@@ -393,6 +434,8 @@ function Menu() {
                         onChange={handlePageChange}
                         color="primary"
                         size="large"
+                        showFirstButton
+                        showLastButton
                     />
                 </Stack>
             )}

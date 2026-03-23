@@ -1,9 +1,9 @@
 /**
- * Entry point cua app.
- * Kien thuc ap dung:
- * - StrictMode + createRoot
+ * Điểm khởi chạy của app.
+ * Kiến thức áp dụng:
+ * - `StrictMode` + `createRoot`
  * - Context Providers (Theme/Auth/Cart)
- * - RouterProvider voi createBrowserRouter
+ * - `RouterProvider` dùng với `createBrowserRouter`
  */
 
 import "@fontsource/roboto/300.css";
@@ -19,7 +19,7 @@ import { ThemeProvider } from "./context/ThemeContext.jsx";
 import "./index.css";
 import { router } from "./router.jsx";
 
-/** Wrap app voi providers va router. */
+/** Bọc app bằng providers và router. */
 createRoot(document.getElementById("root")).render(
     <StrictMode>
         <ThemeProvider>

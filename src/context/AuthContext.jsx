@@ -1,9 +1,9 @@
 /**
- * Auth context.
- * Kien thuc ap dung:
- * - useReducer cho state auth
- * - useContext de chia se state toan app
- * - useCallback/useMemo de toi uu re-render
+ * Context quản lý đăng nhập.
+ * Kiến thức áp dụng:
+ * - `useReducer` cho state auth
+ * - `useContext` để dùng state toàn app
+ * - `useCallback`/`useMemo` để tối ưu render
  */
 
 import {
@@ -22,7 +22,7 @@ const AUTH_ACTIONS = {
     UPDATE_USER: "UPDATE_USER",
 };
 
-// Lay state ban dau tu localStorage.
+// Lấy state ban đầu từ localStorage.
 const getInitialState = () => {
     const saved = localStorage.getItem("refood-user");
     return {
@@ -31,7 +31,7 @@ const getInitialState = () => {
     };
 };
 
-/** Reducer xu ly cac action auth. */
+/** Reducer xử lý các action auth. */
 function authReducer(state, action) {
     switch (action.type) {
         case AUTH_ACTIONS.LOGIN:
@@ -56,7 +56,7 @@ function authReducer(state, action) {
     }
 }
 
-/** Provider chia se auth state/actions. */
+/** Provider chia sẻ auth state/actions. */
 export function AuthProvider({ children }) {
     const [state, dispatch] = useReducer(authReducer, null, getInitialState);
 
@@ -95,7 +95,7 @@ export function AuthProvider({ children }) {
     );
 }
 
-/** Hook truy cap auth context an toan. */
+/** Hook truy cập auth context an toàn. */
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {

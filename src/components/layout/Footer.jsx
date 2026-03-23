@@ -70,8 +70,8 @@ function Footer() {
                             variant="body2"
                             sx={{ color: "#B0B0B0", mb: 2, maxWidth: 320 }}
                         >
-                            Kết nối yêu thương — Hỗ trợ lao động ban đêm, kết
-                            nối quán ăn 0 đồng và chăm sóc người già neo đơn.
+                            Kết nối yêu thương — Phục vụ bữa ăn chất lượng cho
+                            người lao động ban đêm với dịch vụ nhanh và ổn định.
                         </Typography>
                         <Stack direction="row" spacing={1}>
                             <IconButton sx={{ color: "#4267B2" }}>
@@ -97,14 +97,8 @@ function Footer() {
                         </Typography>
                         <Stack spacing={1}>
                             {[
-                                {
-                                    label: "Quán ăn 0đ",
-                                    href: "#quan-an-0d",
-                                },
-                                {
-                                    label: "Đăng ký thiện nguyện",
-                                    href: "#volunteer",
-                                },
+                                { label: "Thực đơn", href: "/menu" },
+                                { label: "Giỏ hàng", href: "/cart" },
                                 { label: "Về chúng tôi", href: "/about" },
                                 {
                                     label: "Chính sách bảo mật",

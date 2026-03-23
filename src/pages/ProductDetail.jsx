@@ -1,9 +1,9 @@
 /**
- * Trang chi tiet san pham.
- * Kien thuc ap dung:
- * - useParams de lay id tu URL
- * - useNavigate de quay lai/chuyen trang
- * - useState, useMemo, useCallback cho UI + logic
+ * useParams: Lấy tham số động từ URL (id sản phẩm).
+ * useState: Quản lý trạng thái số lượng, tab, v.v.
+ * useMemo/useCallback: Tối ưu hiệu suất khi tìm sản phẩm, tăng/giảm số lượng.
+ * useContext (useCart): Thêm sản phẩm vào giỏ hàng toàn app.
+ * useNavigate: Điều hướng khi không tìm thấy sản phẩm hoặc quay lại menu.
  */
 
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -38,36 +38,25 @@ import { useCart } from "../context/CartContext";
 import { allMeals } from "../data/meals";
 
 function ProductDetail() {
-    /**
-     * useParams hook - lấy dynamic parameter từ URL
-     * Route: /product/:id
-     * VD: /product/1 => useParams() trả về { id: "1" }
-     */
+    // Lấy id sản phẩm từ URL.
     const { id } = useParams();
 
-    /**
-     * useNavigate hook - trả về function để điều hướng programmatically
-     * navigate(-1): quay lại trang trước
-     * navigate("/cart"): chuyển đến trang giỏ hàng
-     */
+    // Dùng để điều hướng giữa các trang.
     const navigate = useNavigate();
 
     const { addItem } = useCart();
 
-    // useState cho UI state
+    // State giao diện.
     const [quantity, setQuantity] = useState(1);
     const [activeTab, setActiveTab] = useState(0);
 
-    /**
-     * useMemo để tìm sản phẩm
-     * Chỉ tính toán lại khi id thay đổi
-     */
+    // Tìm sản phẩm theo id.
     const product = useMemo(
         () => allMeals.find((meal) => meal._id === id),
         [id]
     );
 
-    // useCallback cho quantity handlers
+    // Tăng/giảm số lượng trong khoảng 1-10.
     const increaseQty = useCallback(() => {
         setQuantity((prev) => Math.min(prev + 1, 10));
     }, []);
@@ -76,7 +65,7 @@ function ProductDetail() {
         setQuantity((prev) => Math.max(prev - 1, 1));
     }, []);
 
-    // Handler cho add to cart
+    // Thêm sản phẩm vào giỏ với số lượng đã chọn.
     const handleAddToCart = useCallback(() => {
         if (!product) return;
         addItem(
@@ -90,7 +79,7 @@ function ProductDetail() {
         );
     }, [addItem, product, quantity]);
 
-    // Nếu không tìm thấy sản phẩm
+    // Trường hợp id không tồn tại.
     if (!product) {
         return (
             <SectionLayout

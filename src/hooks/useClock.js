@@ -1,43 +1,33 @@
-w/**
- * useClock.js - Custom Hook hiển thị đồng hồ realtime
- *
- * Theo kiến thức React Hooks - Custom Hook:
- * - Custom Hook bắt đầu bằng "use" (ví dụ: useClock)
- * - Sử dụng useState và useEffect để tạo đồng hồ
- * - useEffect cleanup để dọn dẹp interval khi unmount
- *   (tránh memory leak - theo lifecycle unmounting)
+/**
+ * Hook đồng hồ thời gian thực.
+ * Kiến thức áp dụng: `useState`, `useEffect`, cleanup interval.
  */
 
 import { useEffect, useState } from "react";
 
 /**
- * Custom Hook useClock
- * @param {Object} options - Các options cho clock
- * @returns {Object} - Thông tin thời gian hiện tại
+ * @param {Object} options cấu hình đồng hồ
+ * @returns {Object} dữ liệu thời gian hiện tại
  */
 export function useClock(options = {}) {
     const { updateInterval = 1000 } = options;
 
-    // useState để lưu thời gian hiện tại
+    // Lưu thời gian hiện tại.
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {
-        // Tạo interval để cập nhật thời gian mỗi giây
+        // Cập nhật thời gian theo chu kỳ.
         const intervalId = setInterval(() => {
             setTime(new Date());
         }, updateInterval);
 
-        /**
-         * Cleanup function - theo Unmounting lifecycle
-         * Clear interval khi component bị gỡ khỏi DOM
-         * Tránh memory leak
-         */
+        // Dọn interval khi unmount.
         return () => {
             clearInterval(intervalId);
         };
-    }, [updateInterval]); // Dependency: chạy lại nếu updateInterval thay đổi
+    }, [updateInterval]);
 
-    // Trả về các thông tin thời gian hữu ích
+    // Trả về dữ liệu tiện dùng cho UI.
     return {
         time,
         hours: time.getHours(),

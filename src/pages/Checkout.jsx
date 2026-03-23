@@ -1,15 +1,7 @@
 /**
- * Checkout.jsx - Trang thanh toán
- *
- * Theo kiến thức React Hooks:
- * - useState: Quản lý form state và step state
- *
- * Theo kiến thức useContext:
- * - useCart: Lấy thông tin giỏ hàng từ CartContext
- * - useAuth: Kiểm tra đăng nhập
- *
- * Theo kiến thức React Router Dom:
- * - useNavigate: Điều hướng sau khi đặt hàng thành công
+ * useState: Quản lý trạng thái form, stepper, trạng thái đặt hàng.
+ * useContext (useAuth, useCart): Lấy thông tin người dùng, giỏ hàng, clear cart toàn app.
+ * useNavigate: Điều hướng sau khi đặt hàng hoặc khi giỏ hàng trống.
  */
 
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -48,19 +40,15 @@ function Checkout() {
     const navigate = useNavigate();
     const qrImagePath = "/assets/images/payment/qr-thanh-toan.png";
 
-    /**
-     * useAuth và useCart - Custom Hooks sử dụng useContext
-     * Theo kiến thức: Context giúp tránh prop drilling,
-     * Component ở bất kỳ tầng nào cũng truy cập được state
-     */
+    // Lấy thông tin người dùng và giỏ hàng từ context.
     const { user } = useAuth();
     const { cartItems, totalPrice, clearCart } = useCart();
 
-    // useState cho multi-step form
+    // State cho stepper và trạng thái đặt hàng.
     const [activeStep, setActiveStep] = useState(0);
     const [orderPlaced, setOrderPlaced] = useState(false);
 
-    // useState cho form data
+    // Dữ liệu form giao hàng/thanh toán.
     const [formData, setFormData] = useState({
         name: user?.name || "",
         phone: user?.phone || "",
@@ -70,12 +58,12 @@ function Checkout() {
         paymentMethod: "cod",
     });
 
-    // Handler cho form input
+    // Cập nhật form theo input.
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Handler cho step navigation
+    // Điều hướng bước trong stepper.
     const handleNext = () => {
         setActiveStep((prev) => prev + 1);
     };
@@ -84,14 +72,13 @@ function Checkout() {
         setActiveStep((prev) => prev - 1);
     };
 
-    // Handler cho đặt hàng
+    // Mô phỏng đặt hàng thành công.
     const handlePlaceOrder = () => {
-        // Thực tế sẽ gọi API đặt hàng ở đây
         setOrderPlaced(true);
         clearCart();
     };
 
-    // Redirect nếu giỏ hàng trống
+    // Không có sản phẩm thì quay về menu.
     if (cartItems.length === 0 && !orderPlaced) {
         return (
             <SectionLayout

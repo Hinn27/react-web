@@ -1,10 +1,6 @@
 /**
- * Section menu o trang chu.
- * Kien thuc ap dung:
- * - useState cho category filter
- * - useMemo cho filter danh sach
- * - useRef + useInView cho animation
- * - useCallback cho add-to-cart
+ * Section menu ở trang chủ.
+ * Kiến thức áp dụng: `useState`, `useMemo`, `useRef`, `useCallback`.
  */
 
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -41,7 +37,7 @@ import AnimatedSection, {
 import CardMediaSkeleton from "../common/CardMediaSkeleton";
 import SectionLayout from "../layout/SectionLayout";
 
-// Category options cho filter
+// Danh mục để lọc nhanh.
 const categoryOptions = [
     { label: "Tất cả", value: "all" },
     { label: "Bún / Phở", value: "Bún/Phở" },
@@ -53,21 +49,21 @@ const categoryOptions = [
 function MenuSection() {
     const { addItem } = useCart();
 
-    // useState cho category filter
+    // Danh mục đang chọn.
     const [activeCategory, setActiveCategory] = useState("all");
 
-    // useRef để tham chiếu đến grid element
+    // Theo dõi vùng grid để chạy animation khi vào viewport.
     const gridRef = useRef(null);
     const isGridInView = useInView(gridRef, { once: true, amount: 0.1 });
 
-    // useMemo để filter meals - chỉ tính lại khi activeCategory thay đổi
+    // Lọc món theo danh mục.
     const filteredMeals = useMemo(() => {
         return activeCategory === "all"
             ? allMeals
             : allMeals.filter((m) => m.category === activeCategory);
     }, [activeCategory]);
 
-    // useCallback để ghi nhớ handleAddToCart function
+    // Thêm món vào giỏ.
     const handleAddToCart = useCallback(
         (meal) => {
             addItem({

@@ -1,9 +1,9 @@
 /**
- * Cart context.
- * Kien thuc ap dung:
- * - useReducer cho logic gio hang
- * - useContext de dung cart o moi page
- * - useMemo/useCallback de toi uu
+ * Context quản lý giỏ hàng.
+ * Kiến thức áp dụng:
+ * - `useReducer` cho logic giỏ hàng
+ * - `useContext` để dùng cart ở mọi page
+ * - `useMemo`/`useCallback` để tối ưu
  */
 
 import {
@@ -28,7 +28,7 @@ const CART_ACTIONS = {
     CLEAR_CART: "CLEAR_CART",
 };
 
-/** Reducer xu ly cac action gio hang. */
+/** Reducer xử lý các action giỏ hàng. */
 function cartReducer(state, action) {
     switch (action.type) {
         case CART_ACTIONS.ADD_ITEM: {
@@ -115,7 +115,7 @@ function cartReducer(state, action) {
     }
 }
 
-/** Provider chia se cart state/actions. */
+/** Provider chia sẻ cart state/actions. */
 export function CartProvider({ children }) {
     const [state, dispatch] = useReducer(cartReducer, initialState);
 
@@ -161,7 +161,7 @@ export function CartProvider({ children }) {
         dispatch({ type: CART_ACTIONS.CLEAR_CART });
     }, []);
 
-    // Gia tri tinh toan tu items.
+    // Giá trị tính toán từ items.
     const totalItems = useMemo(
         () => state.items.reduce((sum, item) => sum + item.quantity, 0),
         [state.items]
@@ -207,7 +207,7 @@ export function CartProvider({ children }) {
     );
 }
 
-/** Hook truy cap cart context an toan. */
+/** Hook truy cập cart context an toàn. */
 export const useCart = () => {
     const context = useContext(CartContext);
     if (!context) {

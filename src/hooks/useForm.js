@@ -1,43 +1,38 @@
 /**
- * useForm.js - Custom Hook quản lý Form
- * - Custom Hook bắt đầu bằng "use" (ví dụ: useForm)
- * - Giúp tái sử dụng logic form handling giữa nhiều component
- * - Sử dụng useState, useCallback bên trong
+ * Hook quản lý form dùng lại cho nhiều màn hình.
+ * Kiến thức áp dụng: `useState`, `useCallback`.
  */
 
 import { useCallback, useState } from "react";
 
 /**
- * Custom Hook useForm
- * @param {Object} initialValues - Giá trị khởi tạo của form
- * @param {Function} validate - Hàm validate (optional)
- * @returns {Object} - Form state và các helper functions
+ * @param {Object} initialValues giá trị khởi tạo
+ * @param {Function|null} validate hàm validate
+ * @returns {Object} state và hàm hỗ trợ của form
  */
 export function useForm(initialValues = {}, validate = null) {
-    // useState cho form values
+    // State của form.
     const [values, setValues] = useState(initialValues);
 
-    // useState cho errors
     const [errors, setErrors] = useState({});
 
-    // useState cho touched fields
     const [touched, setTouched] = useState({});
 
-    // useCallback để ghi nhớ handleChange function
+    // Đổi giá trị input.
     const handleChange = useCallback((e) => {
         const { name, value, type, checked } = e.target;
         setValues((prev) => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value,
         }));
-        // Clear error khi user bắt đầu nhập
+        // Xóa lỗi của field đang nhập.
         setErrors((prev) => ({
             ...prev,
             [name]: "",
         }));
     }, []);
 
-    // useCallback cho handleBlur - đánh dấu field đã được touch
+    // Đánh dấu field đã tương tác.
     const handleBlur = useCallback((e) => {
         const { name } = e.target;
         setTouched((prev) => ({
@@ -46,7 +41,7 @@ export function useForm(initialValues = {}, validate = null) {
         }));
     }, []);
 
-    // useCallback cho setValue - set giá trị cho một field cụ thể
+    // Set giá trị cho một field.
     const setValue = useCallback((name, value) => {
         setValues((prev) => ({
             ...prev,
@@ -54,7 +49,7 @@ export function useForm(initialValues = {}, validate = null) {
         }));
     }, []);
 
-    // useCallback cho setError - set error cho một field
+    // Set lỗi cho một field.
     const setError = useCallback((name, error) => {
         setErrors((prev) => ({
             ...prev,
@@ -62,14 +57,14 @@ export function useForm(initialValues = {}, validate = null) {
         }));
     }, []);
 
-    // useCallback cho reset form
+    // Reset toàn bộ form.
     const resetForm = useCallback(() => {
         setValues(initialValues);
         setErrors({});
         setTouched({});
     }, [initialValues]);
 
-    // useCallback cho validate form
+    // Chạy validate form.
     const validateForm = useCallback(() => {
         if (!validate) return true;
 
@@ -79,18 +74,18 @@ export function useForm(initialValues = {}, validate = null) {
         return Object.keys(validationErrors).length === 0;
     }, [values, validate]);
 
-    // useCallback cho handleSubmit
+    // Wrapper submit chuẩn cho form.
     const handleSubmit = useCallback((onSubmit) => (e) => {
         e.preventDefault();
 
-        // Đánh dấu tất cả fields đã touched
+        // Đánh dấu tất cả field đã touch.
         const allTouched = Object.keys(values).reduce((acc, key) => {
             acc[key] = true;
             return acc;
         }, {});
         setTouched(allTouched);
 
-        // Validate và submit nếu valid
+        // Validate pass thì submit.
         if (validateForm()) {
             onSubmit(values);
         }
@@ -107,7 +102,7 @@ export function useForm(initialValues = {}, validate = null) {
         resetForm,
         validateForm,
         handleSubmit,
-        // Helper để check if field has error và đã touched
+        // Helper kiểm tra field đang lỗi.
         hasError: (name) => touched[name] && errors[name],
     };
 }

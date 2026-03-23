@@ -1,23 +1,17 @@
 /**
- * useLocalStorage.js - Custom Hook quản lý localStorage
- *
- * Theo kiến thức React Hooks - Custom Hook:
- * - Custom Hook bắt đầu bằng "use"
- * - Trích xuất logic localStorage để tái sử dụng
- * - Kết hợp useState với side effect (localStorage)
+ * Hook đồng bộ state với localStorage.
+ * Kiến thức áp dụng: `useState`, `useCallback`.
  */
 
 import { useCallback, useState } from "react";
 
 /**
- * Custom Hook useLocalStorage
- * @param {string} key - Key trong localStorage
- * @param {any} initialValue - Giá trị mặc định
- * @returns {Array} - [storedValue, setValue, removeValue]
+ * @param {string} key khóa localStorage
+ * @param {any} initialValue giá trị mặc định
+ * @returns {[any, Function, Function]} [value, setValue, removeValue]
  */
 export function useLocalStorage(key, initialValue) {
-    // useState với lazy initialization
-    // Đọc từ localStorage chỉ một lần khi khởi tạo
+    // Đọc localStorage một lần lúc khởi tạo.
     const [storedValue, setStoredValue] = useState(() => {
         try {
             const item = window.localStorage.getItem(key);
@@ -28,10 +22,10 @@ export function useLocalStorage(key, initialValue) {
         }
     });
 
-    // useCallback để ghi nhớ setValue function
+    // Cập nhật state và localStorage.
     const setValue = useCallback((value) => {
         try {
-            // Cho phép value là function (như setState)
+            // Hỗ trợ truyền hàm giống setState.
             const valueToStore = value instanceof Function
                 ? value(storedValue)
                 : value;
@@ -43,7 +37,7 @@ export function useLocalStorage(key, initialValue) {
         }
     }, [key, storedValue]);
 
-    // useCallback để ghi nhớ removeValue function
+    // Xóa giá trị đã lưu.
     const removeValue = useCallback(() => {
         try {
             window.localStorage.removeItem(key);

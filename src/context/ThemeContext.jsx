@@ -1,9 +1,9 @@
 /**
- * Theme context (light/dark).
- * Kien thuc ap dung:
- * - useState de luu mode
- * - useContext de chia se mode/toggle
- * - useMemo de tao MUI theme toi uu
+ * Context quản lý theme sáng/tối.
+ * Kiến thức áp dụng:
+ * - `useState` lưu mode
+ * - `useContext` chia sẻ mode/toggle
+ * - `useMemo` tạo MUI theme tối ưu
  */
 
 import { CssBaseline, ThemeProvider as MuiThemeProvider } from "@mui/material";
@@ -15,12 +15,12 @@ const ThemeContext = createContext({
     toggleTheme: () => {},
 });
 
-/** Hook truy cap theme context. */
+/** Hook truy cập theme context. */
 export const useThemeMode = () => useContext(ThemeContext);
 
-/** Provider cho theme mode + MUI theme. */
+/** Provider cho mode và MUI theme. */
 export function ThemeProvider({ children }) {
-    // Uu tien mode da luu, neu khong co thi mac dinh theo gio.
+    // Ưu tiên mode đã lưu, nếu chưa có thì chọn theo giờ.
     const [mode, setMode] = useState(() => {
         const savedMode = localStorage.getItem("refood-theme-mode");
         if (savedMode) return savedMode;
@@ -43,7 +43,7 @@ export function ThemeProvider({ children }) {
     return (
         <ThemeContext.Provider value={contextValue}>
             <MuiThemeProvider theme={theme}>
-                {/* Apply baseline CSS cho toan app. */}
+                {/* Áp dụng CSS nền cho toàn app. */}
                 <CssBaseline />
                 {children}
             </MuiThemeProvider>

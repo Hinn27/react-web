@@ -1,12 +1,8 @@
 /**
- * Login.jsx - Trang đăng nhập
- *
- * Theo kiến thức React Hooks:
- * - useState: Quản lý form state và UI state (showPassword, error)
- *
- * Theo kiến thức React Router Dom:
- * - useNavigate: Điều hướng sau khi đăng nhập thành công
- * - Link/NavLink: Tạo liên kết đến trang đăng ký
+ * useState: Quản lý trạng thái form và hiển thị lỗi.
+ * useNavigate: Điều hướng sau khi đăng nhập thành công.
+ * useContext (useAuth): Quản lý xác thực, chia sẻ state đăng nhập toàn app.
+ * React Router Link: Điều hướng không reload trang.
  */
 
 import LoginIcon from "@mui/icons-material/Login";
@@ -33,36 +29,36 @@ import SectionLayout from "../components/layout/SectionLayout";
 import { useAuth } from "../context/AuthContext";
 
 function Login() {
-    // useNavigate hook - trả về function để điều hướng
+    // Điều hướng sau khi đăng nhập.
     const navigate = useNavigate();
 
-    // useAuth - custom hook sử dụng useContext
+    // Action đăng nhập từ context.
     const { login } = useAuth();
 
-    // useState cho UI state
+    // State cho giao diện.
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
-    // useState cho form state
+    // State cho form.
     const [form, setForm] = useState({ email: "", password: "" });
 
-    // Handler cho form input change
+    // Cập nhật giá trị form.
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
-        setError(""); // Clear error khi user bắt đầu nhập
+        setError("");
     };
 
-    // Handler cho form submit
+    // Submit đăng nhập.
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validate
+        // Kiểm tra dữ liệu bắt buộc.
         if (!form.email || !form.password) {
             setError("Vui lòng nhập đầy đủ email và mật khẩu");
             return;
         }
 
-        // Mock login — thay bằng API call thực tế
+        // Demo login.
         login({
             id: "1",
             name: "Người dùng ReFood",
@@ -70,7 +66,6 @@ function Login() {
             role: "user",
         });
 
-        // Sử dụng navigate để chuyển về trang chủ
         navigate("/");
     };
 

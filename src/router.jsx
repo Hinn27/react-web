@@ -1,9 +1,9 @@
 /**
- * Router chinh cua app.
- * Kien thuc ap dung:
- * - createBrowserRouter + nested routes
- * - Outlet thong qua Layout
- * - Dynamic route: product/:id
+ * Cấu hình router chính của app.
+ * Kiến thức áp dụng:
+ * - `createBrowserRouter` và nested routes
+ * - `Outlet` thông qua `Layout`
+ * - Dynamic route `product/:id`
  */
 
 import { createBrowserRouter } from "react-router-dom";
@@ -18,7 +18,7 @@ import Register from "./pages/Register";
 
 export const router = createBrowserRouter([
     {
-        // Layout chung cho toàn bộ trang.
+        // Layout dùng chung cho toàn bộ app.
         path: "/",
         element: <Layout />,
         children: [
@@ -40,7 +40,7 @@ export const router = createBrowserRouter([
                 element: <Menu />,
             },
             {
-                // Dynamic route cho trang chi tiet san pham.
+                // Route động cho trang chi tiết sản phẩm.
                 path: "product/:id",
                 element: <ProductDetail />,
             },

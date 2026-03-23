@@ -1,12 +1,8 @@
 /**
- * Register.jsx - Trang đăng ký
- *
- * Theo kiến thức React Hooks:
- * - useState: Quản lý form state phức tạp với nhiều fields
- *
- * Theo kiến thức React Router Dom:
- * - useNavigate: Điều hướng sau khi đăng ký thành công
- * - Link: Tạo liên kết đến trang đăng nhập
+ * useState: Quản lý trạng thái form đăng ký và hiển thị lỗi.
+ * useNavigate: Điều hướng sau khi đăng ký thành công.
+ * useContext (useAuth): Quản lý xác thực, chia sẻ state đăng nhập toàn app.
+ * React Router Link: Điều hướng không reload trang.
  */
 
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -34,17 +30,17 @@ import SectionLayout from "../components/layout/SectionLayout";
 import { useAuth } from "../context/AuthContext";
 
 function Register() {
-    // useNavigate hook để điều hướng programmatically
+    // Điều hướng sau khi đăng ký.
     const navigate = useNavigate();
 
-    // useAuth custom hook
+    // Action đăng nhập từ context.
     const { login } = useAuth();
 
-    // useState cho UI state
+    // State cho giao diện.
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
-    // useState cho form state - nhiều fields
+    // State cho form đăng ký.
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -54,17 +50,17 @@ function Register() {
         role: "user",
     });
 
-    // Handler cho form input
+    // Cập nhật giá trị form.
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
         setError("");
     };
 
-    // Handler cho form submit
+    // Submit đăng ký.
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validation
+        // Kiểm tra dữ liệu trước khi tạo tài khoản.
         if (!form.name || !form.email || !form.phone || !form.password) {
             setError("Vui lòng nhập đầy đủ thông tin");
             return;
@@ -78,7 +74,7 @@ function Register() {
             return;
         }
 
-        // Mock register — thay bằng API
+        // Demo register.
         login({
             id: "1",
             name: form.name,
@@ -87,7 +83,6 @@ function Register() {
             role: form.role,
         });
 
-        // Điều hướng về trang chủ
         navigate("/");
     };
 

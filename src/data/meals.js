@@ -1,6 +1,5 @@
 /**
  * meals.js - Data file cho các món ăn
- * sử dụng static data để demo
  */
 
 export const allMeals = [

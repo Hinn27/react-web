@@ -1,9 +1,6 @@
 /**
- * Navbar chung cua app.
- * Kien thuc ap dung:
- * - NavLink + useLocation cho active state
- * - useNavigate cho dieu huong sau logout
- * - useState cho mobile drawer/dialog
+ * Thanh điều hướng chung của app.
+ * Kiến thức áp dụng: `NavLink`, `useLocation`, `useNavigate`, `useState`.
  */
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -15,8 +12,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import StorefrontIcon from "@mui/icons-material/Storefront";
-import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
 import {
     AppBar,
     Badge,
@@ -49,22 +44,13 @@ import { useCart } from "../../context/CartContext";
 import { useThemeMode } from "../../context/ThemeContext";
 import { LAYOUT_MAX_WIDTH, RESPONSIVE_PX } from "./SectionLayout";
 
-/**
- * Navigation links configuration
- * isRoute: true nếu là React Router route, false nếu là anchor link
- */
+/** Danh sách link menu. `isRoute=false` là link anchor. */
 const navLinks = [
     {
         label: "Thực Đơn",
         href: "/menu",
         icon: <RestaurantMenuIcon />,
         isRoute: true,
-    },
-    { label: "Quán Ăn 0đ", href: "/#quan-an-0d", icon: <StorefrontIcon /> },
-    {
-        label: "Thiện Nguyện",
-        href: "/#volunteer",
-        icon: <VolunteerActivismIcon />,
     },
 ];
 
@@ -75,27 +61,24 @@ function Navbar() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    // useNavigate hook để điều hướng programmatically
+    // Điều hướng sau logout.
     const navigate = useNavigate();
 
-    // useLocation hook để lấy URL hiện tại
+    // Lấy URL hiện tại để highlight menu.
     const location = useLocation();
 
-    // useState cho UI state
+    // State cho drawer/dialog trên UI.
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [logoutDialog, setLogoutDialog] = useState(false);
 
     const handleLogout = () => {
         logout();
         setLogoutDialog(false);
-        // Sử dụng navigate để chuyển về trang chủ sau khi logout
+        // Logout xong quay về trang chủ.
         navigate("/");
     };
 
-    /**
-     * Kiểm tra link có active không
-     * NavLink có thể tự làm điều này với prop isActive
-     */
+    /** Kiểm tra link menu đang active. */
     const isLinkActive = (path) => {
         if (path.startsWith("/#")) return false;
         return location.pathname === path;
@@ -126,8 +109,7 @@ function Navbar() {
                     }}
                 >
                     <Typography variant="body2" fontWeight={700}>
-                        Giao bữa ăn đêm 24/7 • Hỗ trợ người lao động và người
-                        nghèo
+                        Trọn vị cuối ngày • Đong đầy ý nghĩa
                     </Typography>
                 </Box>
                 <Box
@@ -174,54 +156,52 @@ function Navbar() {
                             </Typography>
                         </Stack>
 
-                        {/* Desktop nav links - sử dụng NavLink với style active */}
-                        {!isMobile && (
-                            <Stack
-                                direction="row"
-                                spacing={2}
-                                sx={{
-                                    flexGrow: 1,
-                                    justifyContent: "center",
-                                }}
-                            >
-                                {navLinks.map((link) => (
-                                    <Button
-                                        key={link.label}
-                                        {...(link.isRoute
-                                            ? {
-                                                  component: NavLink,
-                                                  to: link.href,
-                                              }
-                                            : { href: link.href })}
-                                        startIcon={link.icon}
+                        {/* Right side */}
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                            sx={{ ml: "auto" }}
+                        >
+                            {/* Desktop order: Thực Đơn -> Giỏ Hàng -> Theme Mode -> Đăng Nhập */}
+                            {!isMobile && (
+                                <Tooltip title="Thực đơn">
+                                    <IconButton
+                                        component={NavLink}
+                                        to="/menu"
                                         sx={{
-                                            color: isLinkActive(link.href)
+                                            color: isLinkActive("/menu")
                                                 ? "primary.main"
                                                 : "text.primary",
-                                            fontWeight: isLinkActive(link.href)
-                                                ? 700
-                                                : 500,
-                                            borderBottom: isLinkActive(
-                                                link.href
-                                            )
-                                                ? "2px solid"
-                                                : "none",
-                                            borderColor: "primary.main",
-                                            borderRadius: 0,
                                             "&:hover": {
                                                 bgcolor: "action.hover",
                                                 color: "primary.main",
                                             },
                                         }}
                                     >
-                                        {link.label}
-                                    </Button>
-                                ))}
-                            </Stack>
-                        )}
+                                        <RestaurantMenuIcon />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
 
-                        {/* Right side */}
-                        <Stack direction="row" spacing={1} alignItems="center">
+                            {/* Giỏ hàng */}
+                            <Tooltip title="Giỏ hàng">
+                                <IconButton
+                                    component={NavLink}
+                                    to="/cart"
+                                    sx={{ color: "text.primary" }}
+                                >
+                                    <Badge
+                                        badgeContent={totalItems}
+                                        color="primary"
+                                        max={99}
+                                    >
+                                        <ShoppingCartIcon />
+                                    </Badge>
+                                </IconButton>
+                            </Tooltip>
+
+                            {/* Theme mode */}
                             <Tooltip
                                 title={
                                     mode === "dark"
@@ -243,23 +223,6 @@ function Navbar() {
                                     ) : (
                                         <DarkModeIcon />
                                     )}
-                                </IconButton>
-                            </Tooltip>
-
-                            {/* Cart icon - sử dụng NavLink */}
-                            <Tooltip title="Giỏ hàng">
-                                <IconButton
-                                    component={NavLink}
-                                    to="/cart"
-                                    sx={{ color: "text.primary" }}
-                                >
-                                    <Badge
-                                        badgeContent={totalItems}
-                                        color="primary"
-                                        max={99}
-                                    >
-                                        <ShoppingCartIcon />
-                                    </Badge>
                                 </IconButton>
                             </Tooltip>
 

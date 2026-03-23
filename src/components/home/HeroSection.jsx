@@ -3,9 +3,9 @@
  */
 
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import StorefrontIcon from "@mui/icons-material/Storefront";
-import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import { Box, Button, Chip, Stack, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import AnimatedSection from "../common/AnimatedSection";
 import SectionLayout from "../layout/SectionLayout";
 
@@ -67,7 +67,7 @@ function HeroSection() {
                 >
                     <Chip
                         icon={<FavoriteIcon sx={{ fontSize: 16 }} />}
-                        label="Sứ mệnh thiện nguyện"
+                        label="Sứ mệnh sẻ chia bữa ăn"
                         color="secondary"
                         variant="outlined"
                         sx={{ mb: 2, fontWeight: 600 }}
@@ -113,9 +113,8 @@ function HeroSection() {
                             mx: { xs: "auto", md: 0 },
                         }}
                     >
-                        Hỗ trợ cô chú lao động ban đêm, kết nối "Quán ăn 0 đồng"
-                        với các nhóm thiện nguyện, đưa bữa ăn miễn phí đến người
-                        cao tuổi neo đơn.
+                        Phục vụ các món ăn nóng hổi cho người lao động ca đêm
+                        với menu đa dạng, giá hợp lý và giao nhanh 24/7.
                     </Typography>
 
                     <Stack
@@ -124,10 +123,11 @@ function HeroSection() {
                         justifyContent={{ xs: "center", md: "flex-start" }}
                     >
                         <Button
+                            component={RouterLink}
+                            to="/menu"
                             variant="contained"
                             size="large"
-                            startIcon={<StorefrontIcon />}
-                            href="#quan-an-0d"
+                            startIcon={<RestaurantMenuIcon />}
                             sx={{
                                 background:
                                     "linear-gradient(135deg, #E8651A 0%, #FF8A3D 100%)",
@@ -137,23 +137,24 @@ function HeroSection() {
                                 },
                             }}
                         >
-                            Quán Ăn 0đ
+                            Xem Thực Đơn
                         </Button>
                         <Button
-                            variant="contained"
+                            component={RouterLink}
+                            to="/register"
+                            variant="outlined"
                             size="large"
-                            startIcon={<VolunteerActivismIcon />}
-                            href="#volunteer"
+                            startIcon={<FavoriteIcon />}
                             sx={{
-                                background:
-                                    "linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%)",
+                                borderColor: "secondary.main",
+                                color: "secondary.main",
                                 "&:hover": {
-                                    background:
-                                        "linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%)",
+                                    borderColor: "secondary.dark",
+                                    bgcolor: "rgba(46,125,50,0.08)",
                                 },
                             }}
                         >
-                            Tham Gia Thiện Nguyện
+                            Tạo Tài Khoản
                         </Button>
                     </Stack>
                 </AnimatedSection>

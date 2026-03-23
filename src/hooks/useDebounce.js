@@ -1,37 +1,30 @@
 /**
- * useDebounce.js - Custom Hook cho debounce
- * - Custom Hook là các hàm tự định nghĩa, bắt đầu bằng từ khóa "use"
- * - Giúp trích xuất và gom nhóm logic dùng chung
- * - Có thể sử dụng các React Hooks khác bên trong
- *
- * useDebounce dùng để delay việc cập nhật value
- * Thường dùng cho search input để tránh gọi API quá nhiều
+ * Hook debounce cho input/search.
+ * Kiến thức áp dụng: `useState`, `useEffect`, cleanup timeout.
  */
 
 import { useEffect, useState } from "react";
 
 /**
- * Custom Hook useDebounce
- * @param {any} value - Giá trị cần debounce
- * @param {number} delay - Thời gian delay (ms)
- * @returns {any} - Giá trị đã được debounce
+ * @param {any} value giá trị gốc
+ * @param {number} delay thời gian chờ (ms)
+ * @returns {any} giá trị sau debounce
  */
 export function useDebounce(value, delay = 500) {
-    // useState để lưu giá trị debounced
+    // Lưu giá trị sau debounce.
     const [debouncedValue, setDebouncedValue] = useState(value);
 
     useEffect(() => {
-        // Tạo timeout để cập nhật giá trị sau delay
+        // Cập nhật sau một khoảng trễ.
         const timer = setTimeout(() => {
             setDebouncedValue(value);
         }, delay);
 
-        // Cleanup function - clear timeout khi value hoặc delay thay đổi
-        // Điều này ngăn việc cập nhật nếu user còn đang typing
+        // Dọn timeout cũ khi value/delay đổi.
         return () => {
             clearTimeout(timer);
         };
-    }, [value, delay]); // Dependencies: chạy lại khi value hoặc delay thay đổi
+    }, [value, delay]);
 
     return debouncedValue;
 }
