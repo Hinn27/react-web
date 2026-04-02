@@ -8,6 +8,7 @@ router.register(r'profiles', views.UserProfileViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('admin-stats/', views.admin_stats, name='admin_stats'),
     path('interactions/', views.log_interaction, name='log_interaction'),
     path('popular/', views.popular_meals, name='popular_meals'),
     path('personalized/', views.personalized_recommendations, name='personalized'),

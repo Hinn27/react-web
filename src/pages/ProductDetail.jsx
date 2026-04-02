@@ -385,7 +385,6 @@ function ProductDetail() {
                     >
                         <Tab label="Thông tin chi tiết" />
                         <Tab label="Đánh giá" />
-                        <Tab label="Chính sách" />
                     </Tabs>
                     <CardContent>
                         {activeTab === 0 && (
@@ -416,24 +415,6 @@ function ProductDetail() {
                             <Box>
                                 <Typography color="text.secondary">
                                     Chưa có đánh giá nào cho sản phẩm này.
-                                </Typography>
-                            </Box>
-                        )}
-                        {activeTab === 2 && (
-                            <Box>
-                                <Typography
-                                    variant="subtitle2"
-                                    fontWeight={600}
-                                    gutterBottom
-                                >
-                                    Chính sách đổi trả
-                                </Typography>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                >
-                                    Đổi trả miễn phí nếu sản phẩm không đúng như
-                                    mô tả hoặc có vấn đề về chất lượng.
                                 </Typography>
                             </Box>
                         )}

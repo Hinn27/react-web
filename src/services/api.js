@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = '/api';
 
 class ApiService {
     constructor() {
@@ -42,9 +42,33 @@ class ApiService {
         return this.request(`/meals/${id}/`);
     }
 
+    async createMeal(mealData) {
+        return this.request('/meals/', {
+            method: 'POST',
+            body: JSON.stringify(mealData),
+        });
+    }
+
+    async updateMeal(id, mealData) {
+        return this.request(`/meals/${id}/`, {
+            method: 'PUT',
+            body: JSON.stringify(mealData),
+        });
+    }
+
+    async deleteMeal(id) {
+        return this.request(`/meals/${id}/`, {
+            method: 'DELETE',
+        });
+    }
+
     // Recommendations
     async getPopularMeals() {
         return this.request('/popular/');
+    }
+
+    async getAdminStats() {
+        return this.request('/admin-stats/');
     }
 
     async getPersonalizedRecommendations() {

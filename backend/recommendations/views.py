@@ -45,13 +45,19 @@ def log_interaction(request):
 @api_view(['GET'])
 def popular_meals(request):
     cache_key = 'popular_meals'
-    cached_data = cache.get(cache_key)
-    if cached_data:
-        return Response(cached_data)
+    try:
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return Response(cached_data)
+    except Exception:
+        cached_data = None
 
     meals = Meal.objects.order_by('-purchase_count', '-view_count', '-created_at')[:10]
     serializer = MealSerializer(meals, many=True)
-    cache.set(cache_key, serializer.data, settings.CACHE_TTL)
+    try:
+        cache.set(cache_key, serializer.data, getattr(settings, 'CACHE_TTL', 900))
+    except Exception:
+        pass
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -170,4 +176,12 @@ def evaluation_metrics(request):
         'rmse': 0.8,  # placeholder
         'precision': 0.75,
         'recall': 0.6
+    })
+
+
+@api_view(['GET'])
+def admin_stats(request):
+    return Response({
+        'total_users': User.objects.count(),
+        'total_interactions': UserInteraction.objects.count(),
     })

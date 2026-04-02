@@ -4,7 +4,8 @@
  */
 
 import { Box } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import CartSnackbar from "../common/CartSnackbar";
 import MobileSpeedDial from "../common/MobileSpeedDial";
 import PageTransition from "../common/PageTransition";
@@ -12,6 +13,12 @@ import Footer from "./Footer";
 import Navbar from "./Navbar";
 
 function Layout() {
+    const location = useLocation();
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
+
     return (
         <Box
             sx={{
