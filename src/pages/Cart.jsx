@@ -35,6 +35,7 @@ import AnimatedSection from "../components/common/AnimatedSection";
 import CardMediaSkeleton from "../components/common/CardMediaSkeleton";
 import SectionLayout from "../components/layout/SectionLayout";
 import { useCart } from "../context/CartContext";
+import { formatPrice } from "../utils/formatters";
 
 function Cart() {
     const navigate = useNavigate();
@@ -178,10 +179,7 @@ function Cart() {
                                             </TableCell>
                                             <TableCell align="center">
                                                 <Typography>
-                                                    {item.price.toLocaleString(
-                                                        "vi-VN"
-                                                    )}
-                                                    đ
+                                                    {formatPrice(item.price)}đ
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="center">
@@ -224,10 +222,10 @@ function Cart() {
                                                     fontWeight={700}
                                                     color="primary"
                                                 >
-                                                    {(
+                                                    {formatPrice(
                                                         item.price *
-                                                        item.quantity
-                                                    ).toLocaleString("vi-VN")}
+                                                            item.quantity
+                                                    )}
                                                     đ
                                                 </Typography>
                                             </TableCell>
@@ -280,9 +278,7 @@ function Cart() {
                                                     variant="body2"
                                                     color="text.secondary"
                                                 >
-                                                    {item.price.toLocaleString(
-                                                        "vi-VN"
-                                                    )}
+                                                    {formatPrice(item.price)}
                                                     đ/phần
                                                 </Typography>
                                                 <Stack
@@ -329,11 +325,9 @@ function Cart() {
                                                         fontWeight={700}
                                                         color="primary"
                                                     >
-                                                        {(
+                                                        {formatPrice(
                                                             item.price *
-                                                            item.quantity
-                                                        ).toLocaleString(
-                                                            "vi-VN"
+                                                                item.quantity
                                                         )}
                                                         đ
                                                     </Typography>
@@ -403,8 +397,7 @@ function Cart() {
                                             Tạm tính ({totalItems} món)
                                         </Typography>
                                         <Typography>
-                                            {totalPrice.toLocaleString("vi-VN")}
-                                            đ
+                                            {formatPrice(totalPrice)}đ
                                         </Typography>
                                     </Stack>
                                     <Stack
@@ -434,8 +427,7 @@ function Cart() {
                                             fontWeight={700}
                                             color="primary"
                                         >
-                                            {totalPrice.toLocaleString("vi-VN")}
-                                            đ
+                                            {formatPrice(totalPrice)}đ
                                         </Typography>
                                     </Stack>
                                 </Stack>

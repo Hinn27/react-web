@@ -4,6 +4,7 @@
  * - `useReducer` cho logic giỏ hàng
  * - `useContext` để dùng cart ở mọi page
  * - `useMemo`/`useCallback` để tối ưu
+ * - Custom hook `useLocalStorage` để persist giỏ hàng vào localStorage
  */
 
 import {
@@ -13,24 +14,26 @@ import {
     useMemo,
     useReducer,
     useState,
+    useEffect,
 } from "react";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 const CartContext = createContext(null);
-
-const initialState = {
-    items: [],
-};
 
 const CART_ACTIONS = {
     ADD_ITEM: "ADD_ITEM",
     REMOVE_ITEM: "REMOVE_ITEM",
     UPDATE_QUANTITY: "UPDATE_QUANTITY",
     CLEAR_CART: "CLEAR_CART",
+    INIT_FROM_STORAGE: "INIT_FROM_STORAGE",
 };
 
 /** Reducer xử lý các action giỏ hàng. */
 function cartReducer(state, action) {
     switch (action.type) {
+        case CART_ACTIONS.INIT_FROM_STORAGE:
+            return { ...state, items: action.payload || [] };
+
         case CART_ACTIONS.ADD_ITEM: {
             const quantityToAdd = action.payload.quantity ?? 1;
             const existingIndex = state.items.findIndex(
@@ -117,12 +120,20 @@ function cartReducer(state, action) {
 
 /** Provider chia sẻ cart state/actions. */
 export function CartProvider({ children }) {
-    const [state, dispatch] = useReducer(cartReducer, initialState);
+    // Custom hook useLocalStorage: lưu giỏ hàng vào localStorage tự động.
+    const [savedCart, setSavedCart] = useLocalStorage("refood-cart", []);
+
+    const [state, dispatch] = useReducer(cartReducer, { items: savedCart || [] });
 
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: "",
     });
+
+    // Đồng bộ state với localStorage mỗi khi items thay đổi.
+    useEffect(() => {
+        setSavedCart(state.items);
+    }, [state.items, setSavedCart]);
 
     const showSnackbar = useCallback((message) => {
         setSnackbar({ open: true, message });

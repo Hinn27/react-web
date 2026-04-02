@@ -4,7 +4,8 @@
  * 3. useMemo/useCallback: Tối ưu hiệu suất, chỉ dùng khi có tính toán nặng hoặc function truyền xuống props.
  * 4. useContext: Tránh props drilling, chia sẻ state/actions toàn app (giỏ hàng).
  * 5. useSearchParams: Kết nối UI với query string, giúp chia sẻ trạng thái filter qua URL.
- * 6. UI thực chiến: Lọc, tìm kiếm, phân trang, thêm vào giỏ hàng, feedback người dùng.
+ * 6. Custom hooks: useProducts (quản lý sản phẩm), useDebounce (tối ưu search input).
+ * 7. UI thực chiến: Lọc, tìm kiếm, phân trang, thêm vào giỏ hàng, feedback người dùng.
  */
 
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -39,7 +40,10 @@ import AnimatedSection from "../components/common/AnimatedSection";
 import CardMediaSkeleton from "../components/common/CardMediaSkeleton";
 import SectionLayout from "../components/layout/SectionLayout";
 import { useCart } from "../context/CartContext";
-import { allMeals, categories } from "../data/meals";
+import { categories } from "../data/meals";
+import useDebounce from "../hooks/useDebounce";
+import useProducts from "../hooks/useProducts";
+import { formatPrice } from "../utils/formatters";
 
 /**
  * Component trang thực đơn.
@@ -55,30 +59,26 @@ function Menu() {
     // 5. useSearchParams: Chuẩn bị đồng bộ filter với query string trên URL
     const [searchParams] = useSearchParams();
 
-    // 2. useState: Quản lý trạng thái động cho tìm kiếm, danh mục, phân trang
-    // Khi setState, React sẽ REPLACE giá trị, không merge như class component
-    const [search, setSearch] = useState("");
-    const [category, setCategory] = useState("Tất cả");
+    // 6. Custom hook useProducts: Quản lý danh sách sản phẩm, filter, search
+    // Thay vì viết lại logic filter ở đây, ta dùng hook tái sử dụng
+    const {
+        products: filteredMeals,
+        search,
+        setSearch,
+        category,
+        setCategory,
+        totalCount,
+    } = useProducts();
+
+    // 6. Custom hook useDebounce: Tối ưu search input, chỉ filter sau 300ms dừng gõ
+    // Giúp tránh re-render liên tục khi người dùng đang gõ nhanh
+    const debouncedSearch = useDebounce(search, 300);
+
+    // 2. useState: Quản lý trạng thái phân trang
     const [page, setPage] = useState(1);
 
     // Số lượng món trên 1 trang
-    const itemsPerPage = 8;
-
-    // 3. useMemo: Tối ưu hiệu suất, chỉ tính toán lại khi search/category thay đổi
-    // Lọc dữ liệu hiển thị theo từ khóa và danh mục đang chọn
-    // 3. useMemo: Tối ưu hiệu suất, chỉ tính toán lại khi search/category thay đổi
-    // Hooks này giúp tránh render lại không cần thiết (micro optimization, chỉ dùng khi cần)
-    const filteredMeals = useMemo(() => {
-        // Lọc theo tên và danh mục
-        return allMeals.filter((meal) => {
-            const matchSearch = meal.name
-                .toLowerCase()
-                .includes(search.toLowerCase());
-            const matchCategory =
-                category === "Tất cả" || meal.category === category;
-            return matchSearch && matchCategory;
-        });
-    }, [search, category]);
+    const itemsPerPage = 10;
 
     // 3. useMemo: Tính số trang và cắt dữ liệu theo trang hiện tại (phân trang động)
     const totalPages = useMemo(
@@ -91,20 +91,26 @@ function Menu() {
         [filteredMeals, page]
     );
 
-    // 3. useCallback: Ghi nhớ function, tránh tạo mới mỗi lần render (chỉ dùng khi truyền xuống props hoặc callback nặng)
+    // 3. useCallback: Ghi nhớ function, tránh tạo mới mỗi lần render
     // Khi nhập từ khóa mới: cập nhật search và quay về trang 1
-    const handleSearchChange = useCallback((e) => {
-        setSearch(e.target.value);
-        setPage(1);
-    }, []);
+    const handleSearchChange = useCallback(
+        (e) => {
+            setSearch(e.target.value);
+            setPage(1);
+        },
+        [setSearch]
+    );
 
     // Khi đổi danh mục: cập nhật category và quay về trang 1
-    const handleCategoryChange = useCallback((e, val) => {
-        if (val) {
-            setCategory(val);
-            setPage(1);
-        }
-    }, []);
+    const handleCategoryChange = useCallback(
+        (e, val) => {
+            if (val) {
+                setCategory(val);
+                setPage(1);
+            }
+        },
+        [setCategory]
+    );
 
     // Đổi trang và cuộn lên đầu để người dùng nhìn thấy danh sách ngay
     const handlePageChange = useCallback((event, value) => {
@@ -240,7 +246,7 @@ function Menu() {
 
             {/* Results count */}
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Tìm thấy <strong>{filteredMeals.length}</strong> món ăn
+                Tìm thấy <strong>{totalCount}</strong> món ăn
             </Typography>
 
             {/* Meals grid */}
@@ -265,7 +271,13 @@ function Menu() {
                     <Grid container spacing={3}>
                         {paginatedMeals.map((meal) => (
                             <Grid
-                                size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+                                size={{
+                                    xs: 12,
+                                    sm: 6,
+                                    md: 4,
+                                    lg: 2.4,
+                                    xl: 2.4,
+                                }}
                                 key={meal._id}
                             >
                                 <Card
@@ -392,10 +404,7 @@ function Menu() {
                                                 color="primary"
                                                 fontWeight={700}
                                             >
-                                                {meal.price.toLocaleString(
-                                                    "vi-VN"
-                                                )}
-                                                đ
+                                                {formatPrice(meal.price)}đ
                                             </Typography>
                                             <Tooltip title="Thêm vào giỏ">
                                                 <IconButton

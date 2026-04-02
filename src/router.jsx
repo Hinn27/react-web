@@ -8,13 +8,17 @@
 
 import { createBrowserRouter } from "react-router-dom";
 import Layout from "./components/layout/Layout";
+import About from "./pages/About";
+import AdminDashboard from "./pages/AdminDashboard";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Menu from "./pages/Menu";
+import Privacy from "./pages/Privacy";
 import ProductDetail from "./pages/ProductDetail";
 import Register from "./pages/Register";
+import UserProfile from "./pages/UserProfile";
 
 export const router = createBrowserRouter([
     {
@@ -36,6 +40,14 @@ export const router = createBrowserRouter([
                 element: <Register />,
             },
             {
+                path: "profile",
+                element: <UserProfile />,
+            },
+            {
+                path: "admin",
+                element: <AdminDashboard />,
+            },
+            {
                 path: "menu",
                 element: <Menu />,
             },
@@ -51,6 +63,14 @@ export const router = createBrowserRouter([
             {
                 path: "checkout",
                 element: <Checkout />,
+            },
+            {
+                path: "about",
+                element: <About />,
+            },
+            {
+                path: "privacy",
+                element: <Privacy />,
             },
         ],
     },

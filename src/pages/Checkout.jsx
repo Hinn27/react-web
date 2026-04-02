@@ -33,6 +33,7 @@ import AnimatedSection from "../components/common/AnimatedSection";
 import SectionLayout from "../components/layout/SectionLayout";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import { formatPrice } from "../utils/formatters";
 
 const steps = ["Thông tin giao hàng", "Phương thức thanh toán", "Xác nhận"];
 
@@ -547,9 +548,9 @@ function Checkout() {
                                                 variant="body2"
                                                 fontWeight={600}
                                             >
-                                                {(
+                                                {formatPrice(
                                                     item.price * item.quantity
-                                                ).toLocaleString("vi-VN")}
+                                                )}
                                                 đ
                                             </Typography>
                                         </Stack>
@@ -565,8 +566,7 @@ function Checkout() {
                                             Tạm tính
                                         </Typography>
                                         <Typography>
-                                            {totalPrice.toLocaleString("vi-VN")}
-                                            đ
+                                            {formatPrice(totalPrice)}đ
                                         </Typography>
                                     </Stack>
                                     <Stack
@@ -596,8 +596,7 @@ function Checkout() {
                                             fontWeight={700}
                                             color="primary"
                                         >
-                                            {totalPrice.toLocaleString("vi-VN")}
-                                            đ
+                                            {formatPrice(totalPrice)}đ
                                         </Typography>
                                     </Stack>
                                 </Stack>

@@ -1,5 +1,8 @@
 /**
  * Footer.jsx - Footer Component
+ * Kiến thức áp dụng:
+ * - React Router `Link` (NavLink) thay vì thẻ `a` để tránh reload trang
+ * - Grid layout responsive
  */
 
 import EmailIcon from "@mui/icons-material/Email";
@@ -18,6 +21,7 @@ import {
     Stack,
     Typography,
 } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import { LAYOUT_MAX_WIDTH, RESPONSIVE_PX } from "./SectionLayout";
 
 function Footer() {
@@ -86,7 +90,7 @@ function Footer() {
                         </Stack>
                     </Grid>
 
-                    {/* Quick links */}
+                    {/* Quick links — sử dụng RouterLink thay vì href */}
                     <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                         <Typography
                             variant="h6"
@@ -97,17 +101,18 @@ function Footer() {
                         </Typography>
                         <Stack spacing={1}>
                             {[
-                                { label: "Thực đơn", href: "/menu" },
-                                { label: "Giỏ hàng", href: "/cart" },
-                                { label: "Về chúng tôi", href: "/about" },
+                                { label: "Thực đơn", to: "/menu" },
+                                { label: "Giỏ hàng", to: "/cart" },
+                                { label: "Về chúng tôi", to: "/about" },
                                 {
                                     label: "Chính sách bảo mật",
-                                    href: "/privacy",
+                                    to: "/privacy",
                                 },
                             ].map((link) => (
                                 <Link
                                     key={link.label}
-                                    href={link.href}
+                                    component={RouterLink}
+                                    to={link.to}
                                     underline="hover"
                                     sx={{
                                         color: "#B0B0B0",

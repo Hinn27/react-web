@@ -25,10 +25,11 @@ import {
     Typography,
 } from "@mui/material";
 import { useInView } from "framer-motion";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
-import { allMeals } from "../../data/meals";
+import { apiService } from "../../services/api";
+import { formatPrice } from "../../utils/formatters";
 import AnimatedSection, {
     MotionBox,
     staggerContainer,
@@ -52,26 +53,59 @@ function MenuSection() {
     // Danh mục đang chọn.
     const [activeCategory, setActiveCategory] = useState("all");
 
+    // Meals data from API
+    const [meals, setMeals] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     // Theo dõi vùng grid để chạy animation khi vào viewport.
     const gridRef = useRef(null);
     const isGridInView = useInView(gridRef, { once: true, amount: 0.1 });
 
+    // Fetch meals from API
+    useEffect(() => {
+        const loadMeals = async () => {
+            try {
+                setLoading(true);
+                const mealsData = await apiService.getMeals();
+                setMeals(mealsData);
+            } catch (err) {
+                console.error("Failed to load meals:", err);
+                setError("Không thể tải danh sách món ăn");
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadMeals();
+    }, []);
+
     // Lọc món theo danh mục.
     const filteredMeals = useMemo(() => {
         return activeCategory === "all"
-            ? allMeals
-            : allMeals.filter((m) => m.category === activeCategory);
-    }, [activeCategory]);
+            ? meals
+            : meals.filter((m) => m.category === activeCategory);
+    }, [activeCategory, meals]);
+
+    const previewMeals = useMemo(
+        () => filteredMeals.slice(0, 10),
+        [filteredMeals]
+    );
 
     // Thêm món vào giỏ.
     const handleAddToCart = useCallback(
-        (meal) => {
+        async (meal) => {
             addItem({
-                _id: meal._id,
+                _id: meal.id,
                 name: meal.name,
                 price: meal.price,
                 image: meal.image,
             });
+            // Log add to cart interaction
+            try {
+                await apiService.logInteraction(meal.id, "add_to_cart");
+            } catch (error) {
+                console.error("Failed to log interaction:", error);
+            }
         },
         [addItem]
     );
@@ -79,6 +113,7 @@ function MenuSection() {
     return (
         <SectionLayout
             id="menu"
+            variant="wide"
             bgcolor={(theme) =>
                 theme.palette.mode === "light"
                     ? "rgba(232,101,26,0.03)"
@@ -192,170 +227,229 @@ function MenuSection() {
                 initial="hidden"
                 animate={isGridInView ? "visible" : "hidden"}
             >
-                <Grid container spacing={3}>
-                    {filteredMeals.map((meal) => (
-                        <Grid
-                            size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                            key={meal._id}
-                        >
-                            <MotionBox variants={staggerItem}>
-                                <Card
-                                    sx={{
-                                        height: "100%",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        position: "relative",
-                                        overflow: "visible",
-                                    }}
-                                >
-                                    {/* Tag */}
-                                    <Chip
-                                        label={meal.tag}
-                                        size="small"
-                                        icon={<LocalFireDepartmentIcon />}
+                {loading ? (
+                    <Grid container spacing={3}>
+                        {[...Array(6)].map((_, index) => (
+                            <Grid
+                                size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+                                key={index}
+                            >
+                                <CardMediaSkeleton />
+                            </Grid>
+                        ))}
+                    </Grid>
+                ) : error ? (
+                    <Typography color="error" align="center">
+                        {error}
+                    </Typography>
+                ) : (
+                    <Grid container spacing={3}>
+                        {previewMeals.map((meal) => (
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    sm: 6,
+                                    md: 4,
+                                    lg: 2.4,
+                                    xl: 2.4,
+                                }}
+                                key={meal.id}
+                            >
+                                <MotionBox variants={staggerItem}>
+                                    <Card
                                         sx={{
-                                            position: "absolute",
-                                            top: 12,
-                                            left: 12,
-                                            zIndex: 2,
-                                            bgcolor: "primary.main",
-                                            color: "#fff",
-                                            fontWeight: 600,
-                                            "& .MuiChip-icon": {
-                                                color: "#fff",
-                                            },
+                                            height: "100%",
+                                            width: "100%",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            position: "relative",
+                                            overflow: "visible",
+                                            borderRadius: 3,
                                         }}
-                                    />
-                                    <CardActionArea
-                                        component={RouterLink}
-                                        to={`/product/${meal._id}`}
                                     >
-                                        <CardMediaSkeleton
-                                            component="img"
-                                            image={meal.image}
-                                            alt={meal.name}
+                                        {/* Tag */}
+                                        <Chip
+                                            label={meal.tag}
+                                            size="small"
+                                            icon={<LocalFireDepartmentIcon />}
                                             sx={{
-                                                aspectRatio: "16/10",
-                                                objectFit: "cover",
-                                                width: "100%",
-                                            }}
-                                        />
-                                    </CardActionArea>
-                                    <CardContent sx={{ flexGrow: 1, pb: 1.5 }}>
-                                        <Typography
-                                            variant="subtitle1"
-                                            fontWeight={700}
-                                            gutterBottom
-                                            component={RouterLink}
-                                            to={`/product/${meal._id}`}
-                                            sx={{
-                                                textDecoration: "none",
-                                                color: "text.primary",
-                                                "&:hover": {
-                                                    color: "primary.main",
+                                                position: "absolute",
+                                                top: 12,
+                                                left: 12,
+                                                zIndex: 2,
+                                                bgcolor: "primary.main",
+                                                color: "#fff",
+                                                fontWeight: 600,
+                                                "& .MuiChip-icon": {
+                                                    color: "#fff",
                                                 },
                                             }}
-                                        >
-                                            {meal.name}
-                                        </Typography>
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                            sx={{
-                                                mb: 1.5,
-                                                display: "-webkit-box",
-                                                WebkitLineClamp: 2,
-                                                WebkitBoxOrient: "vertical",
-                                                overflow: "hidden",
+                                        />
+                                        <CardActionArea
+                                            component={RouterLink}
+                                            to={`/product/${meal.id}`}
+                                            onClick={() => {
+                                                // Log view interaction
+                                                apiService
+                                                    .logInteraction(
+                                                        meal.id,
+                                                        "view"
+                                                    )
+                                                    .catch(console.error);
                                             }}
                                         >
-                                            {meal.desc}
-                                        </Typography>
-                                        <Stack
-                                            direction="row"
-                                            spacing={1}
-                                            alignItems="center"
-                                            sx={{ mb: 1 }}
-                                        >
-                                            <StarIcon
+                                            <Box
                                                 sx={{
-                                                    fontSize: 16,
-                                                    color: "#FFB400",
+                                                    borderRadius: 3,
+                                                    overflow: "hidden",
                                                 }}
-                                            />
-                                            <Typography
-                                                variant="caption"
-                                                fontWeight={600}
                                             >
-                                                {meal.rating}
+                                                <CardMediaSkeleton
+                                                    component="img"
+                                                    image={meal.image}
+                                                    alt={meal.name}
+                                                    sx={{
+                                                        aspectRatio: "16/10",
+                                                        objectFit: "cover",
+                                                        width: "100%",
+                                                    }}
+                                                />
+                                            </Box>
+                                        </CardActionArea>
+                                        <CardContent
+                                            sx={{ flexGrow: 1, pb: 1.5 }}
+                                        >
+                                            <Typography
+                                                variant="subtitle1"
+                                                component="h3"
+                                                fontWeight={600}
+                                                sx={{
+                                                    mb: 0.5,
+                                                    display: "-webkit-box",
+                                                    WebkitLineClamp: 1,
+                                                    WebkitBoxOrient: "vertical",
+                                                    overflow: "hidden",
+                                                }}
+                                            >
+                                                {meal.name}
                                             </Typography>
                                             <Typography
-                                                variant="caption"
+                                                variant="body2"
                                                 color="text.secondary"
+                                                sx={{
+                                                    mb: 1.5,
+                                                    display: "-webkit-box",
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: "vertical",
+                                                    overflow: "hidden",
+                                                }}
                                             >
-                                                • {meal.origin}
+                                                {meal.description}
                                             </Typography>
                                             <Stack
                                                 direction="row"
-                                                spacing={0.3}
+                                                spacing={1}
                                                 alignItems="center"
+                                                sx={{ mb: 1 }}
                                             >
-                                                <AccessTimeIcon
+                                                <StarIcon
                                                     sx={{
-                                                        fontSize: 13,
-                                                        color: "text.secondary",
+                                                        fontSize: 16,
+                                                        color: "#FFB400",
                                                     }}
                                                 />
                                                 <Typography
                                                     variant="caption"
+                                                    fontWeight={600}
+                                                >
+                                                    {meal.rating}
+                                                </Typography>
+                                                <Typography
+                                                    variant="caption"
                                                     color="text.secondary"
                                                 >
-                                                    {meal.time}
+                                                    • {meal.origin}
                                                 </Typography>
-                                            </Stack>
-                                        </Stack>
-                                        <Stack
-                                            direction="row"
-                                            justifyContent="space-between"
-                                            alignItems="center"
-                                        >
-                                            <Typography
-                                                variant="h6"
-                                                color="primary"
-                                                fontWeight={700}
-                                            >
-                                                {meal.price.toLocaleString(
-                                                    "vi-VN"
-                                                )}
-                                                đ
-                                            </Typography>
-                                            <Tooltip title="Thêm vào giỏ">
-                                                <IconButton
-                                                    color="primary"
-                                                    onClick={() =>
-                                                        handleAddToCart(meal)
-                                                    }
-                                                    sx={{
-                                                        bgcolor:
-                                                            "primary.light",
-                                                        color: "#fff",
-                                                        "&:hover": {
-                                                            bgcolor:
-                                                                "primary.main",
-                                                        },
-                                                    }}
+                                                <Stack
+                                                    direction="row"
+                                                    spacing={0.3}
+                                                    alignItems="center"
                                                 >
-                                                    <AddShoppingCartIcon fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </Stack>
-                                    </CardContent>
-                                </Card>
-                            </MotionBox>
-                        </Grid>
-                    ))}
-                </Grid>
+                                                    <AccessTimeIcon
+                                                        sx={{
+                                                            fontSize: 13,
+                                                            color: "text.secondary",
+                                                        }}
+                                                    />
+                                                    <Typography
+                                                        variant="caption"
+                                                        color="text.secondary"
+                                                    >
+                                                        {meal.time}
+                                                    </Typography>
+                                                </Stack>
+                                            </Stack>
+                                            <Stack
+                                                direction="row"
+                                                justifyContent="space-between"
+                                                alignItems="center"
+                                            >
+                                                <Typography
+                                                    variant="h6"
+                                                    color="primary"
+                                                    fontWeight={700}
+                                                >
+                                                    {formatPrice(meal.price)}đ
+                                                </Typography>
+                                                <Tooltip title="Thêm vào giỏ">
+                                                    <IconButton
+                                                        color="primary"
+                                                        onClick={() =>
+                                                            handleAddToCart(
+                                                                meal
+                                                            )
+                                                        }
+                                                        sx={{
+                                                            bgcolor:
+                                                                "primary.light",
+                                                            color: "#fff",
+                                                            "&:hover": {
+                                                                bgcolor:
+                                                                    "primary.main",
+                                                            },
+                                                        }}
+                                                    >
+                                                        <AddShoppingCartIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Stack>
+                                        </CardContent>
+                                    </Card>
+                                </MotionBox>
+                            </Grid>
+                        ))}
+                    </Grid>
+                )}
             </MotionBox>
+
+            <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                    variant="contained"
+                    component={RouterLink}
+                    to="/menu"
+                    endIcon={<ArrowForwardIcon />}
+                    sx={{
+                        background:
+                            "linear-gradient(135deg, #E8651A 0%, #FF8A3D 100%)",
+                        "&:hover": {
+                            background:
+                                "linear-gradient(135deg, #B84D10 0%, #E8651A 100%)",
+                        },
+                    }}
+                >
+                    Xem thêm món ăn tại đây
+                </Button>
+            </Box>
         </SectionLayout>
     );
 }

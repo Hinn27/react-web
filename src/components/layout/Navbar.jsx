@@ -44,13 +44,19 @@ import { useCart } from "../../context/CartContext";
 import { useThemeMode } from "../../context/ThemeContext";
 import { LAYOUT_MAX_WIDTH, RESPONSIVE_PX } from "./SectionLayout";
 
-/** Danh sách link menu. `isRoute=false` là link anchor. */
 const navLinks = [
     {
         label: "Thực Đơn",
         href: "/menu",
         icon: <RestaurantMenuIcon />,
         isRoute: true,
+    },
+    {
+        label: "Quản Trị",
+        href: "/admin",
+        icon: <RestaurantIcon />, // Placeholder icon
+        isRoute: true,
+        adminOnly: true,
     },
 ];
 
@@ -137,7 +143,7 @@ function Navbar() {
                         >
                             <RestaurantIcon
                                 sx={{
-                                    fontSize: 32,
+                                    fontSize: 35,
                                     color: "primary.main",
                                 }}
                             />
@@ -173,6 +179,9 @@ function Navbar() {
                                             color: isLinkActive("/menu")
                                                 ? "primary.main"
                                                 : "text.primary",
+                                            "& .MuiSvgIcon-root": {
+                                                fontSize: 27,
+                                            },
                                             "&:hover": {
                                                 bgcolor: "action.hover",
                                                 color: "primary.main",
@@ -189,7 +198,12 @@ function Navbar() {
                                 <IconButton
                                     component={NavLink}
                                     to="/cart"
-                                    sx={{ color: "text.primary" }}
+                                    sx={{
+                                        color: "text.primary",
+                                        "& .MuiSvgIcon-root": {
+                                            fontSize: 27,
+                                        },
+                                    }}
                                 >
                                     <Badge
                                         badgeContent={totalItems}
@@ -216,6 +230,9 @@ function Navbar() {
                                             mode === "dark"
                                                 ? "#FFD54F"
                                                 : "#5C6BC0",
+                                        "& .MuiSvgIcon-root": {
+                                            fontSize: 27,
+                                        },
                                     }}
                                 >
                                     {mode === "dark" ? (
@@ -232,8 +249,11 @@ function Navbar() {
                                     {isAuthenticated ? (
                                         <>
                                             <Typography
-                                                variant="body2"
-                                                sx={{ mx: 1 }}
+                                                variant="body1"
+                                                sx={{
+                                                    mx: 1,
+                                                    fontSize: "1rem",
+                                                }}
                                             >
                                                 Xin chào,{" "}
                                                 <strong>{user?.name}</strong>
@@ -244,6 +264,11 @@ function Navbar() {
                                                     onClick={() =>
                                                         setLogoutDialog(true)
                                                     }
+                                                    sx={{
+                                                        "& .MuiSvgIcon-root": {
+                                                            fontSize: 27,
+                                                        },
+                                                    }}
                                                 >
                                                     <LogoutIcon />
                                                 </IconButton>
@@ -258,6 +283,9 @@ function Navbar() {
                                             sx={{
                                                 background:
                                                     "linear-gradient(135deg, #E8651A 0%, #FF8A3D 100%)",
+                                                "& .MuiSvgIcon-root": {
+                                                    fontSize: 23,
+                                                },
                                                 "&:hover": {
                                                     background:
                                                         "linear-gradient(135deg, #B84D10 0%, #E8651A 100%)",
@@ -274,7 +302,12 @@ function Navbar() {
                             {isMobile && (
                                 <IconButton
                                     onClick={() => setDrawerOpen(true)}
-                                    sx={{ color: "text.primary" }}
+                                    sx={{
+                                        color: "text.primary",
+                                        "& .MuiSvgIcon-root": {
+                                            fontSize: 27,
+                                        },
+                                    }}
                                 >
                                     <MenuIcon />
                                 </IconButton>
@@ -335,7 +368,10 @@ function Navbar() {
                     <Box sx={{ p: 2 }}>
                         {isAuthenticated ? (
                             <Stack spacing={2}>
-                                <Typography variant="body2">
+                                <Typography
+                                    variant="body1"
+                                    sx={{ fontSize: "1rem" }}
+                                >
                                     Xin chào, <strong>{user?.name}</strong>
                                 </Typography>
                                 <Button

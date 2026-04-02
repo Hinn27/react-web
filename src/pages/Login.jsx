@@ -3,6 +3,7 @@
  * useNavigate: Điều hướng sau khi đăng nhập thành công.
  * useContext (useAuth): Quản lý xác thực, chia sẻ state đăng nhập toàn app.
  * React Router Link: Điều hướng không reload trang.
+ * Custom hook useForm: Quản lý form state, validation, submit.
  */
 
 import LoginIcon from "@mui/icons-material/Login";
@@ -27,6 +28,15 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import AnimatedSection from "../components/common/AnimatedSection";
 import SectionLayout from "../components/layout/SectionLayout";
 import { useAuth } from "../context/AuthContext";
+import useForm from "../hooks/useForm";
+
+/** Validate form đăng nhập. */
+function validateLogin(values) {
+    const errors = {};
+    if (!values.email) errors.email = "Vui lòng nhập email";
+    if (!values.password) errors.password = "Vui lòng nhập mật khẩu";
+    return errors;
+}
 
 function Login() {
     // Điều hướng sau khi đăng nhập.
@@ -37,32 +47,19 @@ function Login() {
 
     // State cho giao diện.
     const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState("");
 
-    // State cho form.
-    const [form, setForm] = useState({ email: "", password: "" });
-
-    // Cập nhật giá trị form.
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-        setError("");
-    };
+    // Custom hook useForm: quản lý form state, validation, submit.
+    // Tái sử dụng cho nhiều form khác nhau (Login, Register, Checkout).
+    const { values, errors, touched, handleChange, handleBlur, handleSubmit, hasError } =
+        useForm({ email: "", password: "" }, validateLogin);
 
     // Submit đăng nhập.
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        // Kiểm tra dữ liệu bắt buộc.
-        if (!form.email || !form.password) {
-            setError("Vui lòng nhập đầy đủ email và mật khẩu");
-            return;
-        }
-
+    const onSubmit = (formValues) => {
         // Demo login.
         login({
             id: "1",
             name: "Người dùng ReFood",
-            email: form.email,
+            email: formValues.email,
             role: "user",
         });
 
@@ -109,15 +106,11 @@ function Login() {
                             </Typography>
                         </Stack>
 
-                        {/* Error Alert */}
-                        {error && (
-                            <Alert severity="error" sx={{ mb: 2 }}>
-                                {error}
-                            </Alert>
-                        )}
-
-                        {/* Login Form */}
-                        <Box component="form" onSubmit={handleSubmit}>
+                        {/* Login Form — sử dụng handleSubmit từ useForm */}
+                        <Box
+                            component="form"
+                            onSubmit={handleSubmit(onSubmit)}
+                        >
                             <Stack spacing={2.5}>
                                 <TextField
                                     fullWidth
@@ -125,9 +118,12 @@ function Login() {
                                     name="email"
                                     type="email"
                                     placeholder="email@example.com"
-                                    value={form.email}
+                                    value={values.email}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                     autoComplete="email"
+                                    error={!!hasError("email")}
+                                    helperText={hasError("email") ? errors.email : ""}
                                 />
                                 <TextField
                                     fullWidth
@@ -135,9 +131,16 @@ function Login() {
                                     name="password"
                                     type={showPassword ? "text" : "password"}
                                     placeholder="Nhập mật khẩu"
-                                    value={form.password}
+                                    value={values.password}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                     autoComplete="current-password"
+                                    error={!!hasError("password")}
+                                    helperText={
+                                        hasError("password")
+                                            ? errors.password
+                                            : ""
+                                    }
                                     slotProps={{
                                         input: {
                                             endAdornment: (

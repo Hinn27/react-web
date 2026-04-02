@@ -29,13 +29,15 @@ import {
     Tabs,
     Typography,
 } from "@mui/material";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import AnimatedSection from "../components/common/AnimatedSection";
 import CardMediaSkeleton from "../components/common/CardMediaSkeleton";
+import SimilarMeals from "../components/common/SimilarMeals";
 import SectionLayout from "../components/layout/SectionLayout";
 import { useCart } from "../context/CartContext";
-import { allMeals } from "../data/meals";
+import { apiService } from "../services/api";
+import { formatPrice } from "../utils/formatters";
 
 function ProductDetail() {
     // Lấy id sản phẩm từ URL.
@@ -49,12 +51,48 @@ function ProductDetail() {
     // State giao diện.
     const [quantity, setQuantity] = useState(1);
     const [activeTab, setActiveTab] = useState(0);
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [viewStartTime, setViewStartTime] = useState(Date.now());
 
-    // Tìm sản phẩm theo id.
-    const product = useMemo(
-        () => allMeals.find((meal) => meal._id === id),
-        [id]
-    );
+    useEffect(() => {
+        loadProduct();
+    }, [id]);
+
+    useEffect(() => {
+        // Log view interaction when component mounts
+        if (product) {
+            setViewStartTime(Date.now());
+        }
+    }, [product]);
+
+    useEffect(() => {
+        // Log view duration when component unmounts
+        return () => {
+            if (product && viewStartTime) {
+                const duration = Math.floor(
+                    (Date.now() - viewStartTime) / 1000
+                );
+                apiService
+                    .logInteraction(product.id, "view", duration)
+                    .catch(console.error);
+            }
+        };
+    }, [product, viewStartTime]);
+
+    const loadProduct = async () => {
+        try {
+            setLoading(true);
+            const meal = await apiService.getMeal(id);
+            setProduct(meal);
+        } catch (err) {
+            setError("Không tìm thấy sản phẩm");
+            console.error("Failed to load product:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Tăng/giảm số lượng trong khoảng 1-10.
     const increaseQty = useCallback(() => {
@@ -66,21 +104,34 @@ function ProductDetail() {
     }, []);
 
     // Thêm sản phẩm vào giỏ với số lượng đã chọn.
-    const handleAddToCart = useCallback(() => {
+    const handleAddToCart = useCallback(async () => {
         if (!product) return;
         addItem(
             {
-                _id: product._id,
+                _id: product.id,
                 name: product.name,
                 price: product.price,
                 image: product.image,
             },
             quantity
         );
+        // Log add to cart interaction
+        try {
+            await apiService.logInteraction(product.id, "add_to_cart");
+        } catch (error) {
+            console.error("Failed to log interaction:", error);
+        }
     }, [addItem, product, quantity]);
 
-    // Trường hợp id không tồn tại.
-    if (!product) {
+    if (loading) {
+        return (
+            <SectionLayout variant="narrow" sx={{ py: 12, minHeight: "60vh" }}>
+                <CardMediaSkeleton />
+            </SectionLayout>
+        );
+    }
+
+    if (error || !product) {
         return (
             <SectionLayout
                 variant="narrow"
@@ -94,7 +145,7 @@ function ProductDetail() {
                 }}
             >
                 <Typography variant="h4" gutterBottom>
-                    Không tìm thấy sản phẩm
+                    {error || "Không tìm thấy sản phẩm"}
                 </Typography>
                 <Typography color="text.secondary" sx={{ mb: 3 }}>
                     Sản phẩm với mã "{id}" không tồn tại trong hệ thống
@@ -240,7 +291,7 @@ function ProductDetail() {
                             fontWeight={700}
                             sx={{ mb: 3 }}
                         >
-                            {product.price.toLocaleString("vi-VN")}đ
+                            {formatPrice(product.price)}đ
                             <Typography
                                 variant="body2"
                                 component="span"
@@ -317,10 +368,7 @@ function ProductDetail() {
                                 }}
                             >
                                 Thêm vào giỏ —{" "}
-                                {(product.price * quantity).toLocaleString(
-                                    "vi-VN"
-                                )}
-                                đ
+                                {formatPrice(product.price * quantity)}đ
                             </Button>
                         </Stack>
                     </AnimatedSection>
@@ -391,6 +439,11 @@ function ProductDetail() {
                         )}
                     </CardContent>
                 </Card>
+            </AnimatedSection>
+
+            {/* Similar Meals */}
+            <AnimatedSection>
+                <SimilarMeals mealId={product.id} />
             </AnimatedSection>
         </SectionLayout>
     );

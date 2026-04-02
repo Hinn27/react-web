@@ -16,7 +16,7 @@ function HeroSection() {
             sx={{
                 position: "relative",
                 overflow: "hidden",
-                minHeight: { xs: "85vh", md: "90vh" },
+                minHeight: { xs: "65vh", md: "69vh" },
                 display: "flex",
                 alignItems: "center",
                 background: (theme) =>
@@ -185,7 +185,7 @@ function HeroSection() {
                     >
                         <Box
                             component="img"
-                            src="public/assets/images/food/cao-lau.jpg"
+                            src="/assets/images/food/cao-lau.jpg"
                             alt="Món ăn Việt Nam"
                             sx={{
                                 width: "100%",
@@ -225,7 +225,7 @@ function HeroSection() {
                             boxShadow: 3,
                         }}
                     >
-                        ❤️ Miễn Phí
+                        ❤️ Món ăn ngon
                     </Box>
                 </AnimatedSection>
             </Stack>
